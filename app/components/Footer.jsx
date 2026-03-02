@@ -8,8 +8,8 @@ export default function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-col">
-            <h3>Ristorante</h3>
-            <p>Un'esperienza culinaria unica nel cuore della città.</p>
+            <h3>Taverna Raphael</h3>
+            <p>Cucina di mare autentica nel cuore della città.</p>
           </div>
           <div className="footer-col">
             <h3>Link Rapidi</h3>
@@ -22,18 +22,18 @@ export default function Footer() {
             <h3>Contatti</h3>
             <p>Via Roma 1, Milano</p>
             <p>+39 02 12345678</p>
-            <p>info@ristorante.it</p>
+            <p>info@tavernaraphael.it</p>
           </div>
         </div>
         <div className="footer-bottom">
-          <p suppressHydrationWarning>&copy; {new Date().getFullYear()} Ristorante. Tutti i diritti riservati.</p>
+          <p suppressHydrationWarning>&copy; {new Date().getFullYear()} Taverna Raphael. Tutti i diritti riservati.</p>
         </div>
       </div>
       <style jsx>{`
         .footer {
-          background: var(--color-surface);
+          background: var(--color-surface-dark);
           padding: 4rem 0 2rem;
-          border-top: 1px solid var(--color-border);
+          border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .footer-grid {
@@ -49,33 +49,33 @@ export default function Footer() {
         }
 
         .footer-col h3 {
-          color: var(--color-primary);
+          color: var(--gold-accent);
           font-size: 1.2rem;
           margin-bottom: 1.5rem;
         }
 
         .footer-col p {
-          color: var(--color-text-muted);
+          color: rgba(255, 255, 255, 0.75);
           margin-bottom: 0.5rem;
         }
 
         .footer-col :global(a) {
           display: block;
-          color: var(--color-text-muted);
+          color: rgba(255, 255, 255, 0.75);
           margin-bottom: 0.5rem;
           text-decoration: none;
           transition: color 0.3s ease;
         }
 
         .footer-col :global(a):hover {
-          color: var(--color-primary);
+          color: var(--text-white);
         }
 
         .footer-bottom {
           text-align: center;
           padding-top: 2rem;
-          border-top: 1px solid var(--color-border);
-          color: var(--color-text-muted);
+          border-top: 1px solid rgba(255, 255, 255, 0.15);
+          color: rgba(255, 255, 255, 0.75);
           font-size: 0.9rem;
         }
       `}</style>

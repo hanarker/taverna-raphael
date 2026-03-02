@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+import MenuManager from './components/MenuManager';
+import NewsManager from './components/NewsManager';
+
 export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState('reservations');
     const [reservations, setReservations] = useState([]);
-    const [newsList, setNewsList] = useState([]);
     const router = useRouter();
 
     // Load data on mount
@@ -18,12 +20,11 @@ export default function AdminDashboard() {
         }
 
         fetchReservations(token);
-        fetchNews(token);
     }, []);
 
     const fetchReservations = async (token) => {
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
             const res = await fetch(`${API_URL}/api/reservations`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -33,20 +34,10 @@ export default function AdminDashboard() {
         }
     };
 
-    const fetchNews = async (token) => {
-        try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-            const res = await fetch(`${API_URL}/api/news`); // Public endpoint for list
-            if (res.ok) setNewsList(await res.json());
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
     const handleStatusUpdate = async (id, newStatus) => {
         const token = localStorage.getItem('token');
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
             await fetch(`${API_URL}/api/reservations/${id}`, {
                 method: 'PUT',
                 headers: {
@@ -79,6 +70,12 @@ export default function AdminDashboard() {
                     onClick={() => setActiveTab('reservations')}
                 >
                     Prenotazioni
+                </button>
+                <button
+                    className={`tab ${activeTab === 'menu' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('menu')}
+                >
+                    Gestione Menu
                 </button>
                 <button
                     className={`tab ${activeTab === 'news' ? 'active' : ''}`}
@@ -128,20 +125,9 @@ export default function AdminDashboard() {
                     </div>
                 )}
 
-                {activeTab === 'news' && (
-                    <div className="news-management">
-                        <h2>Gestione News</h2>
-                        <p>Funzionalità di aggiunta/modifica news in arrivo...</p>
-                        {/* Future implementation: Form to add news */}
-                        <ul className="admin-news-list">
-                            {newsList.map(item => (
-                                <li key={item.id}>
-                                    {item.title} - <small>{new Date(item.publishedAt).toLocaleDateString()}</small>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
+                {activeTab === 'menu' && <MenuManager />}
+
+                {activeTab === 'news' && <NewsManager />}
             </div>
 
             <style jsx>{`

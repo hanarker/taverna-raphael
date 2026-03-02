@@ -4,8 +4,11 @@ export default function Hero() {
   return (
     <section className="hero">
       <div className="hero-content">
-        <h1>Ristorante Elegante</h1>
-        <p>Sapori autentici, atmosfera unica.</p>
+        <h1>
+          <span className="hero-taverna">Taverna</span>
+          <span className="hero-raphael">Raphael</span>
+        </h1>
+        <p>Sapori di mare autentici, atmosfera unica.</p>
         <a href="/prenotazioni" className="btn-hero">Prenota un tavolo</a>
       </div>
       <style jsx>{`
@@ -15,7 +18,7 @@ export default function Hero() {
           align-items: center;
           justify-content: center;
           text-align: center;
-          background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+          background: linear-gradient(rgba(50, 90, 140, 0.55), rgba(50, 90, 140, 0.55)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
           background-size: cover;
           background-position: center;
           background-attachment: fixed;
@@ -26,34 +29,55 @@ export default function Hero() {
         }
 
         h1 {
-          font-size: 4rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
           margin-bottom: 1rem;
-          text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-          color: #fff;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .hero-taverna {
+          font-family: var(--font-heading);
+          font-size: 3rem;
+          text-transform: uppercase;
+          letter-spacing: 6px;
+          color: var(--text-white);
+          display: block;
+        }
+
+        .hero-raphael {
+          font-family: var(--font-accent);
+          font-size: 5rem;
+          color: var(--gold-accent);
+          text-transform: none;
+          letter-spacing: 0;
+          display: block;
+          line-height: 1.1;
         }
 
         p {
-          font-size: 1.5rem;
+          font-size: 1.3rem;
           margin-bottom: 2rem;
-          color: #ddd;
+          color: rgba(255, 255, 255, 0.85);
         }
 
         .btn-hero {
           display: inline-block;
           padding: 1rem 3rem;
-          background: var(--color-primary);
-          color: var(--color-bg);
+          background: var(--gold-accent);
+          color: var(--bg-blue);
           font-family: var(--font-heading);
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 2px;
-          border: 2px solid var(--color-primary);
+          border: 2px solid var(--gold-accent);
           transition: all 0.3s ease;
         }
 
         .btn-hero:hover {
           background: transparent;
-          color: var(--color-primary);
+          color: var(--text-white);
+          border-color: var(--text-white);
         }
 
         @keyframes fadeUp {
@@ -68,8 +92,12 @@ export default function Hero() {
         }
 
         @media (max-width: 768px) {
-          h1 {
-            font-size: 2.5rem;
+          .hero-taverna {
+            font-size: 2rem;
+            letter-spacing: 4px;
+          }
+          .hero-raphael {
+            font-size: 3.5rem;
           }
         }
       `}</style>

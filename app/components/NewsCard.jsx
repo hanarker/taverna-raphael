@@ -16,18 +16,19 @@ export default function NewsCard({ news }) {
         .news-card {
           background: var(--color-surface);
           border: 1px solid var(--color-border);
-          transition: transform 0.3s ease;
+          transition: transform 0.3s ease, border-color 0.3s ease;
         }
 
         .news-card:hover {
           transform: translateY(-5px);
-          border-color: var(--color-primary);
+          border-color: var(--gold-accent);
         }
 
         .news-img {
           height: 200px;
           background-size: cover;
           background-position: center;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .news-content {
@@ -54,7 +55,7 @@ export default function NewsCard({ news }) {
         }
 
         .read-more {
-          color: var(--color-primary);
+          color: var(--gold-accent);
           font-weight: 600;
           font-size: 0.9rem;
         }

@@ -11,9 +11,9 @@ export default function Home() {
           <div className="about-text">
             <h2>La Nostra Storia</h2>
             <p>
-              Benvenuti nel nostro ristorante, dove tradizione e innovazione si incontrano.
+              Benvenuti alla Taverna Raphael, dove tradizione marinara e innovazione si incontrano.
               Utilizziamo solo ingredienti freschi e di stagione per creare piatti che
-              raccontano una storia.
+              raccontano una storia di mare.
             </p>
             <p className="mt-4">
               Il nostro chef, con anni di esperienza internazionale, porta in tavola
@@ -22,7 +22,6 @@ export default function Home() {
             <a href="/menu" className="btn mt-8">Scopri il Menu</a>
           </div>
           <div className="about-image">
-            {/* Placeholder image */}
             <div className="img-placeholder"></div>
           </div>
         </div>
@@ -33,19 +32,19 @@ export default function Home() {
           <h2 className="text-center">Piatti in Evidenza</h2>
           <div className="menu-grid">
             <div className="menu-item">
-              <div className="menu-img"></div>
+              <div className="menu-img" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1595295333158-4742f28fbd85?auto=format&fit=crop&w=800&q=80')" }}></div>
               <h3>Risotto allo Zafferano</h3>
               <p>Con ossobuco e gremolada</p>
               <span className="price">€24</span>
             </div>
             <div className="menu-item">
-              <div className="menu-img"></div>
+              <div className="menu-img" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80')" }}></div>
               <h3>Tagliata di Manzo</h3>
               <p>Rucola, grana e aceto balsamico</p>
               <span className="price">€28</span>
             </div>
             <div className="menu-item">
-              <div className="menu-img"></div>
+              <div className="menu-img" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=800&q=80')" }}></div>
               <h3>Tiramisù Artigianale</h3>
               <p>La ricetta classica della nonna</p>
               <span className="price">€10</span>
@@ -56,9 +55,9 @@ export default function Home() {
 
       <style jsx>{`
         .bg-surface {
-          background-color: var(--color-surface);
+          background: rgba(40, 75, 120, 0.4);
         }
-        
+
         .about-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
@@ -73,13 +72,13 @@ export default function Home() {
 
         .img-placeholder, .menu-img {
           width: 100%;
-          background-color: #333;
           border-radius: 4px;
         }
-        
+
         .img-placeholder {
           height: 400px;
           background: url('https://images.unsplash.com/photo-1559339352-11d035aa65de?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover;
+          border: 1px solid var(--text-white);
         }
 
         .mt-4 { margin-top: 1rem; }
@@ -96,27 +95,29 @@ export default function Home() {
         .menu-item {
           text-align: center;
           padding: 2rem;
-          background: var(--color-bg);
+          background: var(--color-surface);
           border: 1px solid var(--color-border);
-          transition: transform 0.3s ease;
+          transition: transform 0.3s ease, border-color 0.3s ease;
         }
 
         .menu-item:hover {
             transform: translateY(-5px);
-            border-color: var(--color-primary);
+            border-color: var(--gold-accent);
         }
 
         .menu-img {
           height: 200px;
           margin-bottom: 1.5rem;
-          background: #222; /* Placeholder */
+          background-size: cover;
+          background-position: center;
+          border: 1px solid var(--text-white);
         }
-        
+
         .menu-item h3 {
             font-size: 1.2rem;
             margin-bottom: 0.5rem;
         }
-        
+
         .menu-item p {
             color: var(--color-text-muted);
             margin-bottom: 1rem;
@@ -126,11 +127,11 @@ export default function Home() {
         .price {
           display: block;
           font-family: var(--font-heading);
-          color: var(--color-primary);
+          color: var(--gold-accent);
           font-size: 1.2rem;
           font-weight: 700;
         }
-        
+
         @media (max-width: 768px) {
             .about-grid {
                 grid-template-columns: 1fr;
