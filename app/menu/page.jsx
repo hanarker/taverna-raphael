@@ -2,21 +2,52 @@
 
 import { useState, useEffect } from 'react';
 
-function FishBullet() {
+function CategoryOrnament() {
   return (
-    <svg
-      className="fish-bullet"
-      width="18"
-      height="12"
-      viewBox="0 0 18 12"
-      fill="#E7C697"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path d="M18 6C15 1 10 0 6 0 2.5 0 0 3 0 6c0 3 2.5 6 6 6 4 0 9-1 12-6z" />
-      <circle cx="13.5" cy="4.5" r="1" fill="var(--bg-blue)" />
-      <path d="M0 3 C-1 6 -1 6 0 9" stroke="#E7C697" strokeWidth="1" fill="none" />
-    </svg>
+    <div className="cat-ornament" aria-hidden="true">
+      <span className="cat-orn-line" />
+      <svg width="22" height="14" viewBox="0 0 22 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 7C16 7 11 1.5 3 1.5C3 1.5 6.5 7 3 12.5C11 12.5 16 7 16 7Z" stroke="currentColor" strokeWidth="1" fill="none"/>
+        <path d="M18 4L22 7L18 10" stroke="currentColor" strokeWidth="1" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="5.5" cy="6.5" r="0.75" fill="currentColor"/>
+      </svg>
+      <span className="cat-orn-line" />
+    </div>
+  );
+}
+
+function MenuSkeleton() {
+  return (
+    <div className="skeleton-wrapper" aria-busy="true" aria-label="Caricamento menu in corso">
+      {[1, 2].map((cat) => (
+        <div key={cat} className="skeleton-category">
+          <div className="sk-cat-title" />
+          <div className="sk-grid">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="sk-item">
+                <div className="sk-name" />
+                <div className="sk-dots" />
+                <div className="sk-price" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <style jsx>{`
+        @keyframes shimmer {
+          0%   { opacity: 0.4; }
+          50%  { opacity: 0.8; }
+          100% { opacity: 0.4; }
+        }
+        .skeleton-category { margin-bottom: var(--s-16); animation: shimmer 1.6s ease-in-out infinite; }
+        .sk-cat-title { height: 1.5rem; width: 120px; background: var(--color-panna); border-radius: 2px; margin: 0 auto var(--s-8); }
+        .sk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4) var(--s-8); }
+        .sk-item { display: flex; gap: var(--s-2); align-items: center; padding: var(--s-4) 0; border-bottom: 1px solid var(--color-line); }
+        .sk-name { height: 12px; width: 40%; background: var(--color-panna); border-radius: 2px; }
+        .sk-dots { flex: 1; height: 1px; background: var(--color-panna); }
+        .sk-price { height: 12px; width: 30px; background: var(--color-sabbia-soft); border-radius: 2px; }
+      `}</style>
+    </div>
   );
 }
 
@@ -25,17 +56,6 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true);
 
   const categories = ['Antipasti', 'Primi', 'Secondi', 'Dolci', 'Vini', 'Bevande'];
-  const allergenIcons = {
-    'Glutine': '🌾',
-    'Latte': '🥛',
-    'Uova': '🥚',
-    'Frutta a guscio': '🥜',
-    'Pesce': '🐟',
-    'Crostacei': '🦐',
-    'Soia': '🫘',
-    'Vegetariano': '🥬',
-    'Piccante': '🌶️'
-  };
 
   useEffect(() => {
     async function fetchMenu() {
@@ -55,158 +75,200 @@ export default function MenuPage() {
     fetchMenu();
   }, []);
 
-  if (loading) return <div className="page-container container text-center">Caricamento menu...</div>;
-
   return (
-    <div className="page-container container">
-      <h1 className="page-title">Il Nostro Menu</h1>
+    <>
+      {/* Hero compatto */}
+      <div className="page-hero">
+        <div className="container page-hero-inner">
+          <span className="eyebrow">Cucina di mare stagionale</span>
+          <h1>Il Menu</h1>
+          <span className="hero-script" aria-hidden="true">stagionale</span>
+          <div className="divider-line divider-line--center" style={{ marginTop: 'var(--s-4)' }} aria-hidden="true" />
+        </div>
+      </div>
 
-      <div className="menu-sections">
-        {categories.map((category) => {
-          const items = menuItems.filter(item => item.category === category && item.available);
-          if (items.length === 0) return null;
+      <div className="section container">
+        {loading ? (
+          <MenuSkeleton />
+        ) : (
+          <div className="menu-sections">
+            {categories.map((category, catIdx) => {
+              const items = menuItems.filter(item => item.category === category && item.available);
+              if (items.length === 0) return null;
 
-          return (
-            <div key={category} className="menu-category">
-              <h2>🐟 {category} 🐟</h2>
-              <ul className="menu-list">
-                {items.map((item) => (
-                  <li key={item.id} className="menu-list-item">
-                    <FishBullet />
-                    <div className="item-content">
-                      <div className="item-header">
-                        <span className="item-name">{item.name}</span>
-                        <span className="item-price">€ {item.price}</span>
-                      </div>
-                      <p className="item-desc">{item.description}</p>
-                      <div className="item-allergens">
-                        {item.allergens && item.allergens.map(a => (
-                          <span key={a} title={a} className="allergen-icon">{allergenIcons[a] || '⚠️'}</span>
-                        ))}
-                      </div>
-                    </div>
-                    {item.imageUrl && (
-                      <div className="item-image" style={{ backgroundImage: `url(${item.imageUrl})` }}></div>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          );
-        })}
+              return (
+                <div key={category} className="menu-category">
+                  {catIdx > 0 && <CategoryOrnament />}
+                  <div className="category-header">
+                    <span className="eyebrow">{String(catIdx + 1).padStart(2, '0')}</span>
+                    <h2>{category}</h2>
+                    <div className="divider-line" aria-hidden="true" />
+                  </div>
+                  <ul className="menu-list" aria-label={`Piatti: ${category}`}>
+                    {items.map((item) => (
+                      <li key={item.id} className="menu-item">
+                        <div className="item-row">
+                          <span className="item-name">{item.name}</span>
+                          <span className="item-dots" aria-hidden="true" />
+                          <span className="item-price">€ {item.price}</span>
+                        </div>
+                        {item.description && (
+                          <p className="item-desc">{item.description}</p>
+                        )}
+                        {item.allergens && item.allergens.length > 0 && (
+                          <div className="item-allergens" aria-label="Allergeni">
+                            {item.allergens.map(a => (
+                              <span key={a} className="allergen-badge">{a}</span>
+                            ))}
+                          </div>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <style jsx>{`
-        .page-container {
-          padding-top: var(--spacing-xl);
-          padding-bottom: var(--spacing-xl);
-          min-height: 80vh;
-        }
-
-        .text-center { text-align: center; color: var(--color-text-muted); }
-
-        .page-title {
+        /* Hero */
+        .page-hero {
+          background: var(--color-panna);
+          padding: calc(80px + var(--s-12)) 0 var(--s-12);
           text-align: center;
-          font-size: 3rem;
-          margin-bottom: var(--spacing-lg);
-          color: var(--gold-accent);
         }
 
-        .menu-category {
-          margin-bottom: 4rem;
+        .page-hero-inner {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0;
         }
 
-        .menu-category h2 {
-          text-align: center;
-          margin-bottom: 2rem;
-          font-size: 2rem;
-          border-bottom: 1px solid var(--gold-accent);
-          padding-bottom: 1rem;
-          display: inline-block;
-          width: 100%;
-          color: var(--gold-accent);
+        .page-hero-inner h1 {
+          font-size: clamp(3rem, 6vw, 4.5rem);
+          line-height: 1;
+          margin: var(--s-2) 0 0;
         }
 
+        .hero-script {
+          font-family: var(--font-script);
+          font-size: clamp(2rem, 4vw, 3rem);
+          color: var(--color-sabbia);
+          display: block;
+          margin-top: -0.2em;
+          line-height: 1.3;
+        }
+
+        /* Category ornament */
+        :global(.cat-ornament) {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: var(--s-4);
+          color: var(--color-sabbia);
+          margin: var(--s-12) 0;
+        }
+
+        :global(.cat-orn-line) {
+          display: block;
+          width: 48px;
+          height: 1px;
+          background: var(--color-sabbia);
+        }
+
+        /* Category */
+        .category-header {
+          margin-bottom: var(--s-8);
+        }
+
+        .category-header h2 {
+          font-size: clamp(1.75rem, 3vw, 2.25rem);
+          color: var(--color-ink);
+          margin-top: var(--s-2);
+          margin-bottom: var(--s-4);
+        }
+
+        /* List */
         .menu-list {
           list-style: none;
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 2rem;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0 var(--s-16);
         }
 
-        .menu-list-item {
+        .menu-item {
+          padding: var(--s-4) 0;
+          border-bottom: 1px solid var(--color-line);
+        }
+
+        .item-row {
           display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          gap: 0.75rem;
-          margin-bottom: 1.5rem;
-          background: var(--color-surface);
-          padding: 1rem;
-          border-radius: 8px;
-          border: 1px solid var(--color-border);
-          transition: border-color 0.3s;
-        }
-
-        .menu-list-item :global(.fish-bullet) {
-          flex-shrink: 0;
-          margin-top: 0.35rem;
-        }
-
-        .menu-list-item:hover {
-            border-color: var(--gold-accent);
-        }
-
-        .item-content {
-            flex: 1;
-        }
-
-        .item-header {
-          display: flex;
-          justify-content: space-between;
           align-items: baseline;
-          margin-bottom: 0.5rem;
-          border-bottom: 1px dotted var(--color-border);
-          padding-bottom: 0.5rem;
+          gap: var(--s-2);
+          margin-bottom: var(--s-1);
         }
 
         .item-name {
-          font-family: var(--font-heading);
-          font-size: 1.2rem;
-          font-weight: 700;
-          color: var(--color-text);
+          font-family: var(--font-display);
+          font-size: 1.125rem;
+          font-weight: 500;
+          color: var(--color-ink);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 60%;
+        }
+
+        .item-dots {
+          flex: 1;
+          min-width: var(--s-4);
+          border-bottom: 1px dotted var(--color-line-strong);
+          margin-bottom: 4px;
         }
 
         .item-price {
-          color: var(--gold-accent);
-          font-weight: 700;
-          font-size: 1.1rem;
+          font-family: var(--font-display);
+          font-size: 1.125rem;
+          font-weight: 500;
+          color: var(--color-sabbia);
+          flex-shrink: 0;
+          white-space: nowrap;
         }
 
         .item-desc {
-          font-size: 0.9rem;
-          color: var(--color-text-muted);
+          font-size: 0.875rem;
+          color: var(--color-muted);
           font-style: italic;
-          margin-bottom: 0.5rem;
+          line-height: 1.5;
+          margin: 0;
         }
 
         .item-allergens {
-            display: flex;
-            gap: 0.5rem;
-            font-size: 1.2rem;
+          display: flex;
+          flex-wrap: wrap;
+          gap: var(--s-1);
+          margin-top: var(--s-2);
         }
 
-        .allergen-icon { cursor: help; }
+        .allergen-badge {
+          display: inline-block;
+          padding: 0.1rem 0.4rem;
+          border: 1px solid var(--color-sabbia);
+          color: var(--color-muted);
+          font-family: var(--font-body);
+          font-size: 0.6875rem;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          border-radius: var(--r-sm);
+        }
 
-        .item-image {
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
-            background-size: cover;
-            background-position: center;
-            flex-shrink: 0;
-            border: 1px solid var(--text-white);
+        @media (max-width: 768px) {
+          .menu-list { grid-template-columns: 1fr; }
         }
       `}</style>
-    </div>
+    </>
   );
 }

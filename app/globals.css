@@ -1,34 +1,69 @@
 :root {
-  /* Colors — Taverna Raphael */
-  --bg-blue: #6692BC;
-  --gold-accent: #E7C697;
-  --text-white: #FFFFFF;
-  --color-bg: #6692BC;
-  --color-surface: rgba(255, 255, 255, 0.12);   /* glass card */
-  --color-surface-dark: rgba(40, 75, 120, 0.95); /* footer/navbar scroll */
-  --color-primary: #E7C697;
-  --color-text: #FFFFFF;
-  --color-text-muted: rgba(255, 255, 255, 0.75);
-  --color-border: rgba(255, 255, 255, 0.25);
+  /* Brand Colors */
+  --color-azzurro: #6C92B5;
+  --color-azzurro-soft: #8FA9C4;
+  --color-sabbia: #DFB988;
+  --color-sabbia-soft: #EBD0AB;
+  --color-ink: #1B2A38;
+  --color-muted: #5A6B7A;
+  --color-bg: #F8F5F0;
+  --color-panna: #EDE9E2;
+  --color-line: rgba(27, 42, 56, 0.10);
+  --color-line-strong: rgba(27, 42, 56, 0.20);
+
+  /* Status (admin, desaturati) */
+  --color-success: #5FA077;
+  --color-warning: #CFA959;
+  --color-danger:  #C25E5E;
 
   /* Typography */
-  --font-heading: 'Cinzel', serif;
-  --font-accent: 'Great Vibes', cursive;
-  --font-body: 'Inter', sans-serif;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-script:  'Great Vibes', cursive;
+  --font-body:    'Lato', -apple-system, sans-serif;
 
-  /* Spacing */
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 1rem;
-  --spacing-md: 2rem;
-  --spacing-lg: 4rem;
-  --spacing-xl: 8rem;
+  /* Type scale (responsive) */
+  --fs-eyebrow: 0.8rem;
+  --fs-body:    clamp(1rem, 0.9rem + 0.4vw, 1.1875rem);
+  --fs-lead:    clamp(1.125rem, 0.95rem + 0.7vw, 1.4375rem);
+  --fs-h3:      clamp(1.25rem, 1rem + 0.9vw, 1.75rem);
+  --fs-h2:      clamp(2rem, 1.2rem + 2.8vw, 4rem);
+  --fs-h1:      clamp(3rem, 1.6rem + 5.5vw, 8rem);
+  --fs-script:  clamp(3.5rem, 1.8rem + 5.5vw, 7rem);
 
-  /* Transitions */
-  --transition-fast: 0.2s ease;
-  --transition-normal: 0.3s ease;
+  /* Spacing (4/8px rhythm) */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-6: 1.5rem;
+  --s-8: 2rem;
+  --s-12: 3rem;
+  --s-16: 4rem;
+  --s-24: 6rem;
+
+  /* Radius */
+  --r-sm: 2px;
+  --r-md: 4px;
+  --r-lg: 8px;
+
+  /* Shadows */
+  --shadow-card:   0 1px 2px rgba(27, 42, 56, 0.04);
+  --shadow-raise:  0 8px 24px rgba(27, 42, 56, 0.08);
+  --shadow-banner: 0 -8px 24px rgba(27, 42, 56, 0.08);
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 180ms;
+  --dur-base: 300ms;
+  --dur-slow: 400ms;
+  --dur-cinema: 800ms;
+  --dur-hero: 900ms;
+  --delay-step: 120ms;
 }
 
-* {
+/* ------------------------------------------ Reset */
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -36,92 +71,268 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background-color: var(--bg-blue);
-  color: var(--text-white);
+  background-color: var(--color-bg);
+  color: var(--color-ink);
   font-family: var(--font-body);
-  line-height: 1.6;
+  font-size: var(--fs-body);
+  line-height: 1.65;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
-  font-weight: 400;
-  line-height: 1.2;
-  margin-bottom: var(--spacing-sm);
-  text-transform: uppercase;
-  letter-spacing: 2px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  margin-bottom: var(--s-4);
+}
+
+p {
+  margin-bottom: var(--s-4);
+}
+
+p:last-child {
+  margin-bottom: 0;
 }
 
 a {
   color: inherit;
   text-decoration: none;
-  transition: color var(--transition-fast);
+  transition: color var(--dur-fast) var(--ease);
 }
 
 a:hover {
-  color: var(--color-primary);
+  color: var(--color-sabbia);
+}
+
+img {
+  max-width: 100%;
+  display: block;
 }
 
 button {
   cursor: pointer;
   border: none;
-  outline: none;
+  background: none;
   font-family: inherit;
+  font-size: inherit;
 }
 
-/* Utilities */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-sabbia);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------ Layout utilities */
 .container {
-  max-width: 1200px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--s-6);
 }
 
-/* Utility cornice elegante immagini */
-.img-frame {
-  border: 1px solid var(--text-white);
-  box-shadow: 0 0 0 5px rgba(102, 146, 188, 0.4);
+.section {
+  padding: var(--s-24) 0;
 }
 
+@media (max-width: 768px) {
+  .section {
+    padding: var(--s-16) 0;
+  }
+}
+
+/* ------------------------------------------ Typography utilities */
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-eyebrow);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-muted);
+  display: block;
+  margin-bottom: var(--s-3);
+}
+
+/* eyebrow su sfondo scuro (navbar azzurro, footer, banda prenota) */
+.eyebrow--light {
+  color: var(--color-sabbia);
+}
+
+.divider-line {
+  width: 48px;
+  height: 1px;
+  background: var(--color-sabbia);
+  margin: var(--s-4) 0;
+}
+
+.divider-line--center {
+  margin: var(--s-4) auto;
+}
+
+.divider-line--wide {
+  width: 64px;
+}
+
+.section-number {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  display: block;
+  margin-bottom: var(--s-2);
+}
+
+/* ------------------------------------------ Button */
 .btn {
   display: inline-block;
-  padding: 1rem 2rem;
-  background: var(--gold-accent);
-  color: var(--bg-blue);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border: 2px solid var(--gold-accent);
-  transition: all var(--transition-normal);
+  padding: 0.875rem 1.75rem;
+  background: var(--color-sabbia);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  border: 1px solid var(--color-sabbia);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
 
 .btn:hover {
   background: transparent;
-  color: var(--text-white);
-  border-color: var(--text-white);
-  transform: translateY(-2px);
+  color: var(--color-ink);
 }
 
-.section {
-  padding: var(--spacing-xl) 0;
+.btn-ghost {
+  background: transparent;
+  color: var(--color-azzurro);
+  border: 1.5px solid var(--color-azzurro);
 }
 
-/* Scrollbar */
+.btn-ghost:hover {
+  background: var(--color-azzurro);
+  color: #FFFFFF;
+}
+
+.btn-ghost-white {
+  background: transparent;
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.btn-ghost-white:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #FFFFFF;
+}
+
+/* ------------------------------------------ Skip link */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--s-4);
+  z-index: 9999;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-sabbia);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  border-radius: var(--r-sm);
+  transition: top var(--dur-fast) var(--ease);
+}
+
+.skip-link:focus {
+  top: var(--s-4);
+}
+
+/* ------------------------------------------ Reveal on scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity var(--dur-cinema) var(--ease),
+              transform var(--dur-cinema) var(--ease);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity var(--dur-slow) var(--ease),
+              transform var(--dur-slow) var(--ease);
+}
+
+.reveal-stagger.is-visible > * { opacity: 1; transform: translateY(0); }
+.reveal-stagger.is-visible > :nth-child(1) { transition-delay: 0ms; }
+.reveal-stagger.is-visible > :nth-child(2) { transition-delay: 120ms; }
+.reveal-stagger.is-visible > :nth-child(3) { transition-delay: 240ms; }
+.reveal-stagger.is-visible > :nth-child(4) { transition-delay: 360ms; }
+.reveal-stagger.is-visible > :nth-child(5) { transition-delay: 480ms; }
+.reveal-stagger.is-visible > :nth-child(6) { transition-delay: 600ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* ------------------------------------------ Animations */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------------------ Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-blue);
+  background: var(--color-panna);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
+  background: var(--color-sabbia-soft);
+  border-radius: var(--r-md);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gold-accent);
+  background: var(--color-sabbia);
 }

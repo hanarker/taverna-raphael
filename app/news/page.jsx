@@ -25,49 +25,110 @@ export default function NewsPage() {
         fetchNews();
     }, []);
 
-    return (
-        <div className="page-container container">
-            <h1 className="page-title">Ultime Novità</h1>
+    const SkeletonCard = () => (
+        <div className="skeleton-card" aria-hidden="true">
+            <div className="sk-img" />
+            <div className="sk-body">
+                <div className="sk-date" />
+                <div className="sk-title" />
+                <div className="sk-text" />
+                <div className="sk-text sk-short" />
+                <div className="sk-link" />
+            </div>
+        </div>
+    );
 
-            {loading ? (
-                <p className="text-center">Caricamento...</p>
-            ) : (
-                <div className="news-grid">
-                    {newsList.length > 0 ? (
-                        newsList.map((news) => (
-                            <NewsCard key={news.id} news={news} />
-                        ))
-                    ) : (
-                        <p className="text-center">Nessuna notizia disponibile al momento.</p>
-                    )}
+    return (
+        <>
+            {/* Hero compatto */}
+            <div className="page-hero">
+                <div className="container page-hero-inner">
+                    <span className="eyebrow">Novità e appuntamenti</span>
+                    <h1>News</h1>
+                    <div className="divider-line" aria-hidden="true" />
                 </div>
-            )}
+            </div>
+
+            <div className="section container">
+                {loading ? (
+                    <div className="news-grid" aria-busy="true" aria-label="Caricamento notizie">
+                        {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
+                    </div>
+                ) : newsList.length > 0 ? (
+                    <div className="news-grid">
+                        {newsList.map((news) => <NewsCard key={news.id} news={news} />)}
+                    </div>
+                ) : (
+                    <p className="empty-state">Nessuna notizia disponibile al momento.</p>
+                )}
+            </div>
 
             <style jsx>{`
-        .page-container {
-          padding-top: var(--spacing-xl);
-          padding-bottom: var(--spacing-xl);
-          min-height: 80vh;
+        .page-hero {
+          background: var(--color-panna);
+          padding: calc(80px + var(--s-12)) 0 var(--s-12);
         }
 
-        .page-title {
-          text-align: center;
-          font-size: 3rem;
-          margin-bottom: var(--spacing-lg);
-          color: var(--color-primary);
+        .page-hero-inner {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: var(--s-2);
+        }
+
+        .page-hero-inner h1 {
+          font-size: clamp(2.5rem, 5vw, 4.5rem);
+          line-height: 1;
+          margin: var(--s-2) 0 var(--s-4);
         }
 
         .news-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 2rem;
+          grid-template-columns: repeat(3, 1fr);
+          gap: var(--s-12) var(--s-8);
         }
 
-        .text-center {
+        .empty-state {
           text-align: center;
-          color: var(--color-text-muted);
+          color: var(--color-muted);
+          font-size: var(--fs-lead);
+          padding: var(--s-16) 0;
+        }
+
+        /* Skeleton */
+        @keyframes shimmer {
+          0%   { opacity: 0.5; }
+          50%  { opacity: 0.9; }
+          100% { opacity: 0.5; }
+        }
+
+        .skeleton-card {
+          animation: shimmer 1.6s ease-in-out infinite;
+        }
+
+        .sk-img {
+          width: 100%;
+          aspect-ratio: 16 / 10;
+          background: var(--color-panna);
+          border-radius: var(--r-sm);
+          margin-bottom: var(--s-4);
+        }
+
+        .sk-body { display: flex; flex-direction: column; gap: var(--s-2); }
+        .sk-date  { height: 10px; width: 90px; background: var(--color-line); border-radius: 2px; }
+        .sk-title { height: 14px; width: 70%; background: var(--color-line); border-radius: 2px; }
+        .sk-text  { height: 11px; width: 95%; background: var(--color-line); border-radius: 2px; }
+        .sk-short { width: 60%; }
+        .sk-link  { height: 10px; width: 50px; background: var(--color-sabbia-soft); border-radius: 2px; margin-top: var(--s-2); }
+
+        @media (max-width: 1024px) {
+          .news-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 640px) {
+          .news-grid { grid-template-columns: 1fr; }
         }
       `}</style>
-        </div>
+        </>
     );
 }

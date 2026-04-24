@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation'; // Correct hook for App Router
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 
 export default function NewsDetailPage() {
@@ -11,15 +11,11 @@ export default function NewsDetailPage() {
 
     useEffect(() => {
         if (!slug) return;
-
         async function fetchNewsDetail() {
             try {
                 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
                 const res = await fetch(`${API_URL}/api/news/${slug}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    setNews(data);
-                }
+                if (res.ok) setNews(await res.json());
             } catch (error) {
                 console.error('Error fetching news detail:', error);
             } finally {
@@ -29,35 +25,76 @@ export default function NewsDetailPage() {
         fetchNewsDetail();
     }, [slug]);
 
-    if (loading) return <div className="loader container">Caricamento...</div>;
-    if (!news) return <div className="loader container">Notizia non trovata <Link href="/news" style={{ color: 'var(--color-primary)' }}>Torna indietro</Link></div>;
+    if (loading) return (
+        <div className="loader">
+            <div className="loader-inner container">
+                <p>Caricamento…</p>
+            </div>
+        </div>
+    );
+
+    if (!news) return (
+        <div className="loader">
+            <div className="loader-inner container">
+                <p>Notizia non trovata.</p>
+                <Link href="/news" className="back-link">
+                    <svg width="14" height="10" viewBox="0 0 14 10" fill="none" aria-hidden="true">
+                        <path d="M6 1L1 5l5 4M1 5h12" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Torna alle News
+                </Link>
+            </div>
+        </div>
+    );
+
+    const imgSrc = news.image || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1920&q=80';
+    const paragraphs = news.content.split('\n').filter(p => p.trim());
 
     return (
-        <article className="news-detail-container">
-            <div className="news-hero" style={{ backgroundImage: `url(${news.image || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'})` }}>
-                <div className="overlay"></div>
+        <article>
+            {/* Hero 60vh */}
+            <div className="news-hero" style={{ backgroundImage: `url(${imgSrc})` }}>
+                <div className="hero-overlay" aria-hidden="true" />
                 <div className="hero-content container">
+                    <span className="hero-date" suppressHydrationWarning>
+                        {new Date(news.publishedAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
                     <h1>{news.title}</h1>
-                    <span className="date" suppressHydrationWarning>{new Date(news.publishedAt).toLocaleDateString('it-IT')}</span>
                 </div>
             </div>
 
-            <div className="content container">
+            {/* Corpo articolo */}
+            <div className="article-content container">
                 <div className="body-text">
-                    {news.content.split('\n').map((para, idx) => (
-                        <p key={idx}>{para}</p>
+                    {paragraphs.map((para, idx) => (
+                        <p key={idx} className={idx === 0 ? 'dropcap' : ''}>{para}</p>
                     ))}
                 </div>
-                <Link href="/news" className="back-link">&larr; Torna alle News</Link>
+                <div className="article-footer">
+                    <Link href="/news" className="back-link">
+                        <svg width="14" height="10" viewBox="0 0 14 10" fill="none" aria-hidden="true">
+                            <path d="M6 1L1 5l5 4M1 5h12" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Torna alle News
+                    </Link>
+                </div>
             </div>
 
             <style jsx>{`
         .loader {
-            padding-top: var(--spacing-xl);
-            text-align: center;
-            min-height: 50vh;
+          min-height: 60vh;
+          display: flex;
+          align-items: center;
+          padding-top: 80px;
         }
 
+        .loader-inner {
+          display: flex;
+          flex-direction: column;
+          gap: var(--s-4);
+        }
+
+        /* Hero */
         .news-hero {
           height: 60vh;
           background-size: cover;
@@ -65,13 +102,18 @@ export default function NewsDetailPage() {
           position: relative;
           display: flex;
           align-items: flex-end;
-          padding-bottom: 4rem;
+          padding-bottom: var(--s-12);
+          padding-top: 80px;
         }
 
-        .overlay {
+        .hero-overlay {
           position: absolute;
-          top: 0; left: 0; right: 0; bottom: 0;
-          background: linear-gradient(to top, var(--color-bg), transparent);
+          inset: 0;
+          background: linear-gradient(to top,
+            var(--color-azzurro) 0%,
+            rgba(108, 146, 181, 0.3) 50%,
+            transparent 100%
+          );
         }
 
         .hero-content {
@@ -80,39 +122,85 @@ export default function NewsDetailPage() {
           width: 100%;
         }
 
+        .hero-date {
+          display: block;
+          font-family: var(--font-body);
+          font-size: var(--fs-eyebrow);
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.16em;
+          color: rgba(255, 255, 255, 0.75);
+          margin-bottom: var(--s-3);
+        }
+
         h1 {
-          font-size: 3rem;
-          margin-bottom: 1rem;
-          color: #fff;
-          text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .date {
-          color: var(--color-primary);
-          font-size: 1.1rem;
-        }
-
-        .content {
-          padding: 4rem var(--spacing-md);
+          font-size: clamp(2rem, 4vw, 4rem);
+          color: #FFFFFF;
+          line-height: 1.1;
           max-width: 800px;
+          text-shadow: 0 2px 8px rgba(27, 42, 56, 0.3);
+        }
+
+        /* Article content */
+        .article-content {
+          padding: var(--s-16) var(--s-6);
+          max-width: 760px;
         }
 
         .body-text p {
-          margin-bottom: 1.5rem;
-          font-size: 1.1rem;
+          margin-bottom: var(--s-6);
+          font-size: 1.125rem;
           line-height: 1.8;
-          color: var(--color-text);
+          color: var(--color-ink);
+        }
+
+        /* Drop cap sul primo paragrafo */
+        .body-text .dropcap::first-letter {
+          font-family: var(--font-display);
+          font-size: 4.5rem;
+          line-height: 0.85;
+          float: left;
+          padding: 0.3rem var(--s-3) 0 0;
+          color: var(--color-sabbia);
+        }
+
+        .article-footer {
+          margin-top: var(--s-12);
+          padding-top: var(--s-8);
+          border-top: 1px solid var(--color-line);
         }
 
         .back-link {
-            display: inline-block;
-            margin-top: 2rem;
-            color: var(--color-primary);
-            border-bottom: 1px solid transparent;
+          display: inline-flex;
+          align-items: center;
+          gap: var(--s-2);
+          font-family: var(--font-body);
+          font-size: var(--fs-eyebrow);
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.14em;
+          color: var(--color-sabbia);
+          text-decoration: none;
+          position: relative;
+          padding-bottom: 2px;
         }
-        
-        .back-link:hover {
-            border-bottom-color: var(--color-primary);
+
+        .back-link::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 0;
+          height: 1px;
+          background: var(--color-sabbia);
+          transition: width var(--dur-base) var(--ease);
+        }
+
+        .back-link:hover::after { width: 100%; }
+
+        @media (max-width: 768px) {
+          .news-hero { height: 50vh; }
+          h1 { font-size: clamp(1.75rem, 6vw, 2.5rem); }
         }
       `}</style>
         </article>

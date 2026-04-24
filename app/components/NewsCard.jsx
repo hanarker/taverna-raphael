@@ -3,63 +3,128 @@
 import Link from 'next/link';
 
 export default function NewsCard({ news }) {
+  const imgSrc = news.image || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80';
+
   return (
-    <div className="news-card">
-      <div className="news-img" style={{ backgroundImage: `url(${news.image || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'})` }}></div>
-      <div className="news-content">
-        <span className="news-date" suppressHydrationWarning>{new Date(news.publishedAt).toLocaleDateString('it-IT')}</span>
-        <h3>{news.title}</h3>
-        <p>{news.content.substring(0, 100)}...</p>
-        <Link href={`/news/${news.slug}`} className="read-more">Leggi tutto &rarr;</Link>
+    <Link href={`/news/${news.slug}`} className="news-card" aria-label={`Leggi: ${news.title}`}>
+      <div className="card-media">
+        <img
+          src={imgSrc}
+          alt={news.title}
+          className="card-img"
+          loading="lazy"
+        />
       </div>
+      <div className="card-body">
+        <span className="news-date" suppressHydrationWarning>
+          {new Date(news.publishedAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}
+        </span>
+        <h3 className="news-title">{news.title}</h3>
+        <p className="news-excerpt">{news.content.substring(0, 120)}…</p>
+        <span className="read-link">
+          Leggi
+          <svg width="14" height="10" viewBox="0 0 14 10" fill="none" aria-hidden="true">
+            <path d="M8 1l5 4-5 4M1 5h12" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </span>
+      </div>
+
       <style jsx>{`
         .news-card {
-          background: var(--color-surface);
-          border: 1px solid var(--color-border);
-          transition: transform 0.3s ease, border-color 0.3s ease;
+          display: block;
+          text-decoration: none;
+          color: inherit;
+          cursor: pointer;
         }
 
-        .news-card:hover {
-          transform: translateY(-5px);
-          border-color: var(--gold-accent);
+        .card-media {
+          overflow: hidden;
+          aspect-ratio: 16 / 10;
+          border-radius: var(--r-sm);
+          margin-bottom: var(--s-4);
         }
 
-        .news-img {
-          height: 200px;
-          background-size: cover;
-          background-position: center;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        .card-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+          transition: transform var(--dur-base) var(--ease);
         }
 
-        .news-content {
-          padding: 1.5rem;
+        .news-card:hover .card-img {
+          transform: scale(1.03);
+        }
+
+        .card-body {
+          padding: 0;
         }
 
         .news-date {
-          font-size: 0.8rem;
-          color: var(--color-text-muted);
           display: block;
-          margin-bottom: 0.5rem;
+          font-family: var(--font-body);
+          font-size: var(--fs-eyebrow);
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.14em;
+          color: var(--color-muted);
+          margin-bottom: var(--s-2);
         }
 
-        h3 {
-          font-size: 1.2rem;
-          margin-bottom: 1rem;
-          line-height: 1.4;
+        .news-title {
+          font-family: var(--font-display);
+          font-size: var(--fs-h3);
+          font-weight: 500;
+          color: var(--color-ink);
+          line-height: 1.3;
+          margin-bottom: var(--s-3);
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
 
-        p {
-          color: var(--color-text-muted);
-          font-size: 0.9rem;
-          margin-bottom: 1.5rem;
+        .news-excerpt {
+          font-size: 0.9375rem;
+          color: var(--color-muted);
+          line-height: 1.6;
+          margin-bottom: var(--s-4);
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
 
-        .read-more {
-          color: var(--gold-accent);
-          font-weight: 600;
-          font-size: 0.9rem;
+        .read-link {
+          display: inline-flex;
+          align-items: center;
+          gap: var(--s-2);
+          font-family: var(--font-body);
+          font-size: var(--fs-eyebrow);
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.14em;
+          color: var(--color-sabbia);
+          text-decoration: none;
+          position: relative;
+          padding-bottom: 2px;
+        }
+
+        .read-link::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 0;
+          height: 1px;
+          background: var(--color-sabbia);
+          transition: width var(--dur-base) var(--ease);
+        }
+
+        .news-card:hover .read-link::after {
+          width: 100%;
         }
       `}</style>
-    </div>
+    </Link>
   );
 }
