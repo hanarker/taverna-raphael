@@ -5,6 +5,14 @@ import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 
+const NAV_LINKS = [
+    { href: '/#pescato', label: 'Menu' },
+    { href: '/#locale', label: 'Locale' },
+    { href: '/#prenota', label: 'Prenota', cta: true },
+    { href: '/#aulivella', label: 'Aulivella (E-Commerce)' },
+    { href: '/news', label: 'News' },
+];
+
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -64,7 +72,7 @@ export default function Navbar() {
     }, [menuOpen]);
 
     const isActive = (href) => {
-        if (href === '/') return pathname === '/';
+        if (href.startsWith('/#')) return false;
         return pathname.startsWith(href);
     };
 
@@ -77,20 +85,24 @@ export default function Navbar() {
             <div className="container nav-content">
                 <Link href="/" className="logo" aria-label="Taverna Raphael — torna alla homepage">
                     <Image
-                        src="/logo.png"
+                        src="/vetrina/logo.png"
                         alt="Taverna Raphael"
-                        width={120}
-                        height={60}
+                        width={61}
+                        height={44}
                         className="logo-img"
                         priority
                     />
                 </Link>
 
                 <div className="nav-links">
-                    <Link href="/" className={`nav-link ${isActive('/') ? 'active' : ''}`} aria-current={isActive('/') ? 'page' : undefined}>Home</Link>
-                    <Link href="/menu" className={`nav-link ${isActive('/menu') ? 'active' : ''}`} aria-current={isActive('/menu') ? 'page' : undefined}>Menu</Link>
-                    <Link href="/news" className={`nav-link ${isActive('/news') ? 'active' : ''}`} aria-current={isActive('/news') ? 'page' : undefined}>News</Link>
-                    <Link href="/prenotazioni" className={`btn-nav ${isActive('/prenotazioni') ? 'active' : ''}`} aria-current={isActive('/prenotazioni') ? 'page' : undefined}>Prenota</Link>
+                    {NAV_LINKS.map((link) => (
+                        <Link
+                            key={link.href}
+                            href={link.href}
+                            className={link.cta ? 'btn-nav' : `nav-link ${isActive(link.href) ? 'active' : ''}`}
+                            aria-current={!link.cta && isActive(link.href) ? 'page' : undefined}
+                        >{link.label}</Link>
+                    ))}
                 </div>
 
                 <button
@@ -122,7 +134,7 @@ export default function Navbar() {
             >
                 <div className="panel-inner">
                     <div className="mobile-lockup" aria-hidden="true">
-                        <span className="mobile-lockup-taverna">Taverna</span>
+                        <span className="mobile-lockup-title">Taverna Raphael</span>
                         <div className="mobile-ornament">
                             <span className="mob-line mob-line-l" />
                             <svg
@@ -137,41 +149,22 @@ export default function Navbar() {
                             </svg>
                             <span className="mob-line mob-line-r" />
                         </div>
-                        <span className="mobile-lockup-raphael">Raphael</span>
                     </div>
 
                     <ol className="mobile-nav-list" role="list">
-                        <li className="mobile-nav-item">
-                            <span className="section-number" aria-hidden="true">01</span>
-                            <Link
-                                href="/"
-                                className={`mobile-nav-link ${isActive('/') ? 'active' : ''}`}
-                                aria-current={isActive('/') ? 'page' : undefined}
-                            >Home</Link>
-                        </li>
-                        <li className="mobile-nav-item">
-                            <span className="section-number" aria-hidden="true">02</span>
-                            <Link
-                                href="/menu"
-                                className={`mobile-nav-link ${isActive('/menu') ? 'active' : ''}`}
-                                aria-current={isActive('/menu') ? 'page' : undefined}
-                            >Menu</Link>
-                        </li>
-                        <li className="mobile-nav-item">
-                            <span className="section-number" aria-hidden="true">03</span>
-                            <Link
-                                href="/news"
-                                className={`mobile-nav-link ${isActive('/news') ? 'active' : ''}`}
-                                aria-current={isActive('/news') ? 'page' : undefined}
-                            >News</Link>
-                        </li>
+                        {NAV_LINKS.filter((link) => !link.cta).map((link, i) => (
+                            <li className="mobile-nav-item" key={link.href}>
+                                <span className="section-number" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                                <Link
+                                    href={link.href}
+                                    className={`mobile-nav-link ${isActive(link.href) ? 'active' : ''}`}
+                                    aria-current={isActive(link.href) ? 'page' : undefined}
+                                >{link.label}</Link>
+                            </li>
+                        ))}
                     </ol>
 
-                    <Link
-                        href="/prenotazioni"
-                        className={`mobile-cta-full ${isActive('/prenotazioni') ? 'active' : ''}`}
-                        aria-current={isActive('/prenotazioni') ? 'page' : undefined}
-                    >
+                    <Link href="/#prenota" className="mobile-cta-full">
                         Prenota un tavolo
                     </Link>
 
@@ -179,14 +172,13 @@ export default function Navbar() {
 
                     <div className="mobile-contacts">
                         <p className="eyebrow mob-contacts-label">Contatti</p>
-                        <a href="tel:+390818983446" className="mobile-contact-tel">+39 081 898 3446</a>
                         <a href="tel:+393663575967" className="mobile-contact-tel">366 357 5967</a>
                         <address className="mobile-contact-addr">
-                            Piazza Antonio Sodani<br />Sant'Anastasia (NA)
+                            Piazza Sodani 1<br />Sant&apos;Anastasia (NA)
                         </address>
                         <p className="mobile-contact-hours">
-                            Lun–Dom 12:00–15:00 · 19:00–23:00<br />
-                            <em>Martedì pranzo chiuso</em>
+                            Pranzo e cena, martedì–domenica<br />
+                            <em>Chiuso il lunedì</em>
                         </p>
                     </div>
                 </div>
@@ -205,17 +197,14 @@ export default function Navbar() {
                       border-color var(--dur-base) var(--ease),
                       box-shadow var(--dur-base) var(--ease);
           border-bottom: 1px solid transparent;
-        }
-
-        .navbar.solid {
-          background: var(--color-azzurro);
-          border-bottom-color: rgba(108, 146, 181, 0.4);
+          background: linear-gradient(to bottom, rgba(13, 35, 43, 0.92), rgba(13, 35, 43, 0));
         }
 
         .navbar.scrolled {
-          background: var(--color-azzurro);
-          border-bottom-color: rgba(108, 146, 181, 0.4);
-          box-shadow: 0 2px 16px rgba(27, 42, 56, 0.14);
+          background: rgba(13, 35, 43, 0.96);
+          backdrop-filter: blur(6px);
+          border-bottom-color: var(--color-line);
+          box-shadow: 0 2px 16px rgba(13, 35, 43, 0.3);
         }
 
         .navbar.is-menu-open {
@@ -239,7 +228,7 @@ export default function Navbar() {
           flex-shrink: 0;
         }
 
-        .logo-img { display: block; }
+        .logo-img { display: block; height: 44px; width: auto; }
 
         /* ===== DESKTOP NAV ===== */
         .nav-links {
@@ -249,11 +238,12 @@ export default function Navbar() {
         }
 
         .nav-link {
-          font-family: var(--font-body);
-          font-size: 0.875rem;
-          font-weight: 400;
-          letter-spacing: 0.02em;
-          color: rgba(255, 255, 255, 0.9);
+          font-family: var(--font-mono);
+          font-size: 0.78rem;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: var(--color-text-soft);
           position: relative;
           padding-bottom: 3px;
           transition: color var(--dur-fast) var(--ease);
@@ -266,35 +256,33 @@ export default function Navbar() {
           left: 0;
           width: 0;
           height: 2px;
-          background: var(--color-sabbia);
+          background: var(--color-brass-bright);
           transition: width var(--dur-base) var(--ease);
         }
 
         .nav-link:hover::after,
         .nav-link.active::after { width: 100%; }
 
-        .nav-link:hover { color: #FFFFFF; }
+        .nav-link:hover { color: var(--color-paper); }
 
         .btn-nav {
-          font-family: var(--font-body);
-          font-size: 0.875rem;
-          font-weight: 400;
-          letter-spacing: 0.04em;
-          padding: 0.5rem 1.25rem;
-          border: 1.5px solid rgba(255, 255, 255, 0.55);
+          font-family: var(--font-mono);
+          font-size: 0.78rem;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          padding: 0.5625rem 1.25rem;
+          border: 1px solid var(--color-brass);
           border-radius: var(--r-sm);
-          color: #FFFFFF;
+          color: var(--color-brass-bright);
           background: transparent;
           transition: background var(--dur-fast) var(--ease),
-                      color var(--dur-fast) var(--ease),
-                      border-color var(--dur-fast) var(--ease);
+                      color var(--dur-fast) var(--ease);
         }
 
-        .btn-nav:hover,
-        .btn-nav.active {
-          background: rgba(255, 255, 255, 0.18);
-          border-color: #FFFFFF;
-          color: #FFFFFF;
+        .btn-nav:hover {
+          background: var(--color-brass);
+          color: var(--color-ink);
         }
 
         /* ===== HAMBURGER ===== */
@@ -314,7 +302,7 @@ export default function Navbar() {
           display: block;
           width: 100%;
           height: 1.5px;
-          background: rgba(255, 255, 255, 0.9);
+          background: var(--color-paper);
           transition: transform var(--dur-base) var(--ease),
                       opacity var(--dur-base) var(--ease),
                       background var(--dur-base) var(--ease);
@@ -322,7 +310,7 @@ export default function Navbar() {
         }
 
         .hamburger.open .hamburger-line {
-          background: var(--color-ink);
+          background: var(--color-paper);
         }
 
         .hamburger-line.open:nth-child(1) { transform: translateY(8.25px) rotate(45deg); }
@@ -333,7 +321,7 @@ export default function Navbar() {
         .mobile-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(27, 42, 56, 0.45);
+          background: rgba(13, 35, 43, 0.6);
           z-index: 1050;
           animation: fadeIn 250ms var(--ease) both;
         }
@@ -345,7 +333,7 @@ export default function Navbar() {
           inset: 0;
           width: 100vw;
           height: 100dvh;
-          background: var(--color-bg);
+          background: var(--color-ink);
           z-index: 1100;
           overflow-y: auto;
           flex-direction: column;
@@ -379,12 +367,13 @@ export default function Navbar() {
           width: 100%;
         }
 
-        .mobile-lockup-taverna {
+        .mobile-lockup-title {
           font-family: var(--font-display);
+          font-style: italic;
           font-size: clamp(2rem, 8vw, 2.75rem);
           font-weight: 500;
           letter-spacing: -0.01em;
-          color: var(--color-ink);
+          color: var(--color-paper);
           line-height: 1;
         }
 
@@ -392,15 +381,15 @@ export default function Navbar() {
           display: flex;
           align-items: center;
           gap: var(--s-3);
-          margin: var(--s-2) 0;
-          color: var(--color-sabbia);
+          margin: var(--s-3) 0;
+          color: var(--color-brass-bright);
         }
 
         .mob-line {
           display: block;
           width: 32px;
           height: 1px;
-          background: var(--color-sabbia);
+          background: var(--color-brass-bright);
           transform-origin: left;
         }
 
@@ -409,16 +398,8 @@ export default function Navbar() {
         }
 
         .mob-fish {
-          color: var(--color-sabbia);
+          color: var(--color-brass-bright);
           flex-shrink: 0;
-        }
-
-        .mobile-lockup-raphael {
-          font-family: var(--font-script);
-          font-size: clamp(2.25rem, 9vw, 3.25rem);
-          color: var(--color-sabbia);
-          line-height: 1.1;
-          margin-top: -0.1em;
         }
 
         /* Nav list */
@@ -439,20 +420,20 @@ export default function Navbar() {
         }
 
         .section-number {
-          font-family: var(--font-display);
-          font-size: 0.875rem;
-          font-style: italic;
-          color: var(--color-muted);
+          font-family: var(--font-mono);
+          font-size: 0.8rem;
+          color: var(--color-text-dim);
           min-width: 1.75ch;
           flex-shrink: 0;
         }
 
         .mobile-nav-link {
           font-family: var(--font-display);
-          font-size: clamp(2rem, 5vw + 0.25rem, 2.75rem);
+          font-style: italic;
+          font-size: clamp(1.75rem, 5vw + 0.25rem, 2.4rem);
           font-weight: 500;
           letter-spacing: -0.01em;
-          color: var(--color-ink);
+          color: var(--color-paper);
           text-decoration: none;
           transition: color var(--dur-fast) var(--ease),
                       letter-spacing var(--dur-fast) var(--ease);
@@ -461,7 +442,7 @@ export default function Navbar() {
 
         .mobile-nav-link:hover,
         .mobile-nav-link.active {
-          color: var(--color-sabbia);
+          color: var(--color-brass-bright);
           letter-spacing: 0.01em;
         }
 
@@ -475,9 +456,9 @@ export default function Navbar() {
           letter-spacing: 0.08em;
           text-transform: uppercase;
           padding: var(--s-4) var(--s-10);
-          background: var(--color-sabbia);
+          background: var(--color-brass);
           color: var(--color-ink);
-          border: 1px solid var(--color-sabbia);
+          border: 1px solid var(--color-brass);
           border-radius: var(--r-sm);
           transition: background var(--dur-fast) var(--ease),
                       color var(--dur-fast) var(--ease);
@@ -487,12 +468,7 @@ export default function Navbar() {
         }
 
         .mobile-cta-full:hover {
-          background: transparent;
-          color: var(--color-ink);
-        }
-
-        .mobile-cta-full.active {
-          background: transparent;
+          background: var(--color-brass-bright);
           color: var(--color-ink);
         }
 
@@ -501,7 +477,7 @@ export default function Navbar() {
           display: block;
           width: 48px;
           height: 1px;
-          background: var(--color-sabbia);
+          background: var(--color-brass-bright);
           margin: 0 auto var(--s-6);
           transform-origin: left;
         }
@@ -518,14 +494,16 @@ export default function Navbar() {
 
         .mob-contacts-label {
           margin-bottom: var(--s-2);
+          justify-content: center;
         }
 
         .mobile-contact-tel {
           display: block;
           font-family: var(--font-display);
+          font-style: italic;
           font-size: 1.25rem;
           font-weight: 500;
-          color: var(--color-ink);
+          color: var(--color-paper);
           text-decoration: none;
           transition: color var(--dur-fast) var(--ease);
           line-height: 1.5;
@@ -533,13 +511,13 @@ export default function Navbar() {
 
         .mobile-contact-tel:hover,
         .mobile-contact-tel:active {
-          color: var(--color-sabbia);
+          color: var(--color-brass-bright);
         }
 
         .mobile-contact-addr {
           font-family: var(--font-body);
           font-size: 0.9rem;
-          color: var(--color-muted);
+          color: var(--color-text-soft);
           line-height: 1.65;
           font-style: normal;
           margin-top: var(--s-2);
@@ -548,7 +526,7 @@ export default function Navbar() {
         .mobile-contact-hours {
           font-family: var(--font-body);
           font-size: 0.875rem;
-          color: var(--color-muted);
+          color: var(--color-text-soft);
           line-height: 1.65;
           margin-top: var(--s-1);
         }
@@ -581,12 +559,7 @@ export default function Navbar() {
           to   { opacity: 1; transform: scale(1); }
         }
 
-        @keyframes scriptReveal {
-          from { opacity: 0; transform: translateY(8px); filter: blur(6px); }
-          to   { opacity: 1; transform: translateY(0);   filter: blur(0); }
-        }
-
-        .mobile-menu.open .mobile-lockup-taverna {
+        .mobile-menu.open .mobile-lockup-title {
           animation: fadeUp 500ms var(--ease-out-expo) 250ms both;
         }
 
@@ -602,32 +575,36 @@ export default function Navbar() {
           animation: fishPop 400ms ease-out 450ms both;
         }
 
-        .mobile-menu.open .mobile-lockup-raphael {
-          animation: scriptReveal 700ms var(--ease-out-expo) 500ms both;
-        }
-
         .mobile-menu.open .mobile-nav-item:nth-child(1) {
-          animation: fadeUp 500ms var(--ease-out-expo) 600ms both;
+          animation: fadeUp 500ms var(--ease-out-expo) 550ms both;
         }
 
         .mobile-menu.open .mobile-nav-item:nth-child(2) {
-          animation: fadeUp 500ms var(--ease-out-expo) 720ms both;
+          animation: fadeUp 500ms var(--ease-out-expo) 650ms both;
         }
 
         .mobile-menu.open .mobile-nav-item:nth-child(3) {
-          animation: fadeUp 500ms var(--ease-out-expo) 840ms both;
+          animation: fadeUp 500ms var(--ease-out-expo) 750ms both;
+        }
+
+        .mobile-menu.open .mobile-nav-item:nth-child(4) {
+          animation: fadeUp 500ms var(--ease-out-expo) 850ms both;
+        }
+
+        .mobile-menu.open .mobile-nav-item:nth-child(5) {
+          animation: fadeUp 500ms var(--ease-out-expo) 950ms both;
         }
 
         .mobile-menu.open .mobile-cta-full {
-          animation: fadeUp 500ms var(--ease-out-expo) 960ms both;
+          animation: fadeUp 500ms var(--ease-out-expo) 1050ms both;
         }
 
         .mobile-menu.open .mob-divider {
-          animation: lineGrowRight 400ms ease-out 1080ms both;
+          animation: lineGrowRight 400ms ease-out 1150ms both;
         }
 
         .mobile-menu.open .mobile-contacts {
-          animation: fadeUp 500ms var(--ease-out-expo) 1140ms both;
+          animation: fadeUp 500ms var(--ease-out-expo) 1200ms both;
         }
 
         /* ===== REDUCED MOTION ===== */

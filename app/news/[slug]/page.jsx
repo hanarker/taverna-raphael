@@ -13,7 +13,7 @@ export default function NewsDetailPage() {
         if (!slug) return;
         async function fetchNewsDetail() {
             try {
-                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+                const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
                 const res = await fetch(`${API_URL}/api/news/${slug}`);
                 if (res.ok) setNews(await res.json());
             } catch (error) {
@@ -110,8 +110,8 @@ export default function NewsDetailPage() {
           position: absolute;
           inset: 0;
           background: linear-gradient(to top,
-            var(--color-azzurro) 0%,
-            rgba(108, 146, 181, 0.3) 50%,
+            var(--color-ink) 0%,
+            rgba(13, 35, 43, 0.4) 50%,
             transparent 100%
           );
         }
@@ -124,21 +124,21 @@ export default function NewsDetailPage() {
 
         .hero-date {
           display: block;
-          font-family: var(--font-body);
+          font-family: var(--font-mono);
           font-size: var(--fs-eyebrow);
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.16em;
-          color: rgba(255, 255, 255, 0.75);
+          color: var(--color-text-soft);
           margin-bottom: var(--s-3);
         }
 
         h1 {
           font-size: clamp(2rem, 4vw, 4rem);
-          color: #FFFFFF;
+          color: var(--color-paper);
           line-height: 1.1;
           max-width: 800px;
-          text-shadow: 0 2px 8px rgba(27, 42, 56, 0.3);
+          text-shadow: 0 2px 8px rgba(13, 35, 43, 0.4);
         }
 
         /* Article content */
@@ -151,7 +151,7 @@ export default function NewsDetailPage() {
           margin-bottom: var(--s-6);
           font-size: 1.125rem;
           line-height: 1.8;
-          color: var(--color-ink);
+          color: var(--color-paper);
         }
 
         /* Drop cap sul primo paragrafo */
@@ -161,7 +161,7 @@ export default function NewsDetailPage() {
           line-height: 0.85;
           float: left;
           padding: 0.3rem var(--s-3) 0 0;
-          color: var(--color-sabbia);
+          color: var(--color-brass-bright);
         }
 
         .article-footer {
@@ -174,12 +174,12 @@ export default function NewsDetailPage() {
           display: inline-flex;
           align-items: center;
           gap: var(--s-2);
-          font-family: var(--font-body);
+          font-family: var(--font-mono);
           font-size: var(--fs-eyebrow);
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.14em;
-          color: var(--color-sabbia);
+          color: var(--color-brass-bright);
           text-decoration: none;
           position: relative;
           padding-bottom: 2px;
@@ -192,7 +192,7 @@ export default function NewsDetailPage() {
           left: 0;
           width: 0;
           height: 1px;
-          background: var(--color-sabbia);
+          background: var(--color-brass-bright);
           transition: width var(--dur-base) var(--ease);
         }
 

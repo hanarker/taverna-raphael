@@ -1,25 +1,26 @@
 :root {
-  /* Brand Colors */
-  --color-azzurro: #6C92B5;
-  --color-azzurro-soft: #8FA9C4;
-  --color-sabbia: #DFB988;
-  --color-sabbia-soft: #EBD0AB;
-  --color-ink: #1B2A38;
-  --color-muted: #5A6B7A;
-  --color-bg: #F8F5F0;
-  --color-panna: #EDE9E2;
-  --color-line: rgba(27, 42, 56, 0.10);
-  --color-line-strong: rgba(27, 42, 56, 0.20);
+  /* Brand Colors — tema notturno / ottone */
+  --color-ink: #0D232B;
+  --color-ink-light: #15343D;
+  --color-paper: #E9E2CD;
+  --color-paper-dim: #D8CFB2;
+  --color-brass: #AD8A45;
+  --color-brass-bright: #C9A35F;
+  --color-rust: #9A4A3A;
+  --color-text-soft: #C7C0A8;
+  --color-text-dim: #8EA1A6;
+  --color-line: rgba(173, 138, 69, 0.18);
+  --color-line-strong: rgba(173, 138, 69, 0.25);
 
-  /* Status (admin, desaturati) */
-  --color-success: #5FA077;
+  /* Status (admin, desaturati per fondo scuro) */
+  --color-success: #7BAE8F;
   --color-warning: #CFA959;
-  --color-danger:  #C25E5E;
+  --color-danger:  #D98A7D;
 
   /* Typography */
-  --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-script:  'Great Vibes', cursive;
-  --font-body:    'Lato', -apple-system, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-mono:    'IBM Plex Mono', monospace;
+  --font-body:    'Inter', -apple-system, sans-serif;
 
   /* Type scale (responsive) */
   --fs-eyebrow: 0.8rem;
@@ -75,8 +76,8 @@ html {
 }
 
 body {
-  background-color: var(--color-bg);
-  color: var(--color-ink);
+  background-color: var(--color-ink);
+  color: var(--color-paper);
   font-family: var(--font-body);
   font-size: var(--fs-body);
   line-height: 1.65;
@@ -87,7 +88,8 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: 560;
+  font-style: italic;
   line-height: 1.1;
   letter-spacing: -0.01em;
   text-transform: none;
@@ -109,7 +111,7 @@ a {
 }
 
 a:hover {
-  color: var(--color-sabbia);
+  color: var(--color-brass-bright);
 }
 
 img {
@@ -130,7 +132,7 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--color-sabbia);
+  outline: 2px solid var(--color-brass-bright);
   outline-offset: 2px;
 }
 
@@ -153,25 +155,36 @@ textarea:focus-visible {
 
 /* ------------------------------------------ Typography utilities */
 .eyebrow {
-  font-family: var(--font-body);
+  font-family: var(--font-mono);
   font-size: var(--fs-eyebrow);
-  font-weight: 700;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--color-muted);
-  display: block;
+  letter-spacing: 0.18em;
+  color: var(--color-brass-bright);
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
   margin-bottom: var(--s-3);
 }
 
-/* eyebrow su sfondo scuro (navbar azzurro, footer, banda prenota) */
+.eyebrow::before {
+  content: "";
+  width: 22px;
+  height: 1px;
+  background: var(--color-brass-bright);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* eyebrow su sfondo scuro secondario (banda prenota, footer) — invariato: la palette è già scura */
 .eyebrow--light {
-  color: var(--color-sabbia);
+  color: var(--color-brass-bright);
 }
 
 .divider-line {
   width: 48px;
   height: 1px;
-  background: var(--color-sabbia);
+  background: var(--color-brass-bright);
   margin: var(--s-4) 0;
 }
 
@@ -187,7 +200,7 @@ textarea:focus-visible {
   font-family: var(--font-display);
   font-style: italic;
   font-size: 0.875rem;
-  color: var(--color-muted);
+  color: var(--color-text-dim);
   display: block;
   margin-bottom: var(--s-2);
 }
@@ -196,43 +209,45 @@ textarea:focus-visible {
 .btn {
   display: inline-block;
   padding: 0.875rem 1.75rem;
-  background: var(--color-sabbia);
+  background: var(--color-brass);
   color: var(--color-ink);
   font-family: var(--font-body);
   font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  border: 1px solid var(--color-sabbia);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  border: 1px solid var(--color-brass);
   border-radius: var(--r-sm);
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
 }
 
 .btn:hover {
-  background: transparent;
+  background: var(--color-brass-bright);
+  border-color: var(--color-brass-bright);
   color: var(--color-ink);
+  transform: translateY(-2px);
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--color-azzurro);
-  border: 1.5px solid var(--color-azzurro);
+  color: var(--color-text-soft);
+  border: 1px solid var(--color-brass);
 }
 
 .btn-ghost:hover {
-  background: var(--color-azzurro);
-  color: #FFFFFF;
+  background: var(--color-brass);
+  color: var(--color-ink);
 }
 
 .btn-ghost-white {
   background: transparent;
-  color: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: var(--color-paper);
+  border: 1px solid rgba(233, 226, 205, 0.4);
 }
 
 .btn-ghost-white:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: #FFFFFF;
+  background: rgba(233, 226, 205, 0.1);
+  border-color: var(--color-paper);
 }
 
 /* ------------------------------------------ Skip link */
@@ -242,7 +257,7 @@ textarea:focus-visible {
   left: var(--s-4);
   z-index: 9999;
   padding: 0.75rem 1.5rem;
-  background: var(--color-sabbia);
+  background: var(--color-brass);
   color: var(--color-ink);
   font-family: var(--font-body);
   font-size: 0.85rem;
@@ -325,14 +340,14 @@ textarea:focus-visible {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-panna);
+  background: var(--color-ink-light);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-sabbia-soft);
+  background: var(--color-brass);
   border-radius: var(--r-md);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-sabbia);
+  background: var(--color-brass-bright);
 }

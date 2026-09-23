@@ -10,7 +10,7 @@ export default function NewsPage() {
     useEffect(() => {
         async function fetchNews() {
             try {
-                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+                const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
                 const res = await fetch(`${API_URL}/api/news`);
                 if (res.ok) {
                     const data = await res.json();
@@ -65,7 +65,7 @@ export default function NewsPage() {
 
             <style jsx>{`
         .page-hero {
-          background: var(--color-panna);
+          background: var(--color-ink-light);
           padding: calc(80px + var(--s-12)) 0 var(--s-12);
         }
 
@@ -90,7 +90,7 @@ export default function NewsPage() {
 
         .empty-state {
           text-align: center;
-          color: var(--color-muted);
+          color: var(--color-text-soft);
           font-size: var(--fs-lead);
           padding: var(--s-16) 0;
         }
@@ -109,7 +109,7 @@ export default function NewsPage() {
         .sk-img {
           width: 100%;
           aspect-ratio: 16 / 10;
-          background: var(--color-panna);
+          background: var(--color-ink-light);
           border-radius: var(--r-sm);
           margin-bottom: var(--s-4);
         }
@@ -119,7 +119,7 @@ export default function NewsPage() {
         .sk-title { height: 14px; width: 70%; background: var(--color-line); border-radius: 2px; }
         .sk-text  { height: 11px; width: 95%; background: var(--color-line); border-radius: 2px; }
         .sk-short { width: 60%; }
-        .sk-link  { height: 10px; width: 50px; background: var(--color-sabbia-soft); border-radius: 2px; margin-top: var(--s-2); }
+        .sk-link  { height: 10px; width: 50px; background: var(--color-brass); border-radius: 2px; margin-top: var(--s-2); }
 
         @media (max-width: 1024px) {
           .news-grid { grid-template-columns: repeat(2, 1fr); }

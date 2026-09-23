@@ -45,8 +45,8 @@ export default function CookieBanner() {
                     left: 0;
                     width: 100%;
                     z-index: 2000;
-                    background: #FFFFFF;
-                    border-top: 2px solid var(--color-sabbia);
+                    background: var(--color-ink-light);
+                    border-top: 1px solid var(--color-line-strong);
                     box-shadow: var(--shadow-banner);
                     padding: var(--s-4) 0;
                     animation: slideUp var(--dur-base) var(--ease) both;
@@ -70,21 +70,21 @@ export default function CookieBanner() {
 
                 .cookie-text {
                     font-size: 0.9rem;
-                    color: var(--color-muted);
+                    color: var(--color-text-soft);
                     line-height: 1.5;
                     margin: 0;
                 }
 
                 .cookie-link {
-                    color: var(--color-ink);
+                    color: var(--color-paper);
                     text-decoration: underline;
-                    text-decoration-color: var(--color-sabbia);
+                    text-decoration-color: var(--color-brass-bright);
                     text-underline-offset: 3px;
                     font-weight: 500;
                 }
 
                 .cookie-link:hover {
-                    color: var(--color-sabbia);
+                    color: var(--color-brass-bright);
                 }
 
                 .cookie-actions {
@@ -95,9 +95,9 @@ export default function CookieBanner() {
 
                 .btn-accept {
                     padding: 0.55rem 1.5rem;
-                    background: var(--color-sabbia);
+                    background: var(--color-brass);
                     color: var(--color-ink);
-                    border: 1px solid var(--color-sabbia);
+                    border: 1px solid var(--color-brass);
                     border-radius: var(--r-sm);
                     font-family: var(--font-body);
                     font-size: 0.8125rem;
@@ -108,14 +108,14 @@ export default function CookieBanner() {
                 }
 
                 .btn-accept:hover {
-                    background: transparent;
+                    background: var(--color-brass-bright);
                     color: var(--color-ink);
                 }
 
                 .btn-decline {
                     padding: 0.55rem 1.25rem;
                     background: transparent;
-                    color: var(--color-muted);
+                    color: var(--color-text-soft);
                     border: 1px solid var(--color-line-strong);
                     border-radius: var(--r-sm);
                     font-family: var(--font-body);
@@ -127,8 +127,8 @@ export default function CookieBanner() {
                 }
 
                 .btn-decline:hover {
-                    color: var(--color-ink);
-                    border-color: var(--color-ink);
+                    color: var(--color-paper);
+                    border-color: var(--color-brass);
                 }
 
                 @media (max-width: 700px) {

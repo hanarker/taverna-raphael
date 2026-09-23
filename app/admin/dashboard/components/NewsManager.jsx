@@ -28,8 +28,8 @@ function Toast({ message, type, onDismiss }) {
                     box-shadow: 0 4px 16px rgba(0,0,0,0.3);
                     animation: toastIn 0.25s ease-out;
                 }
-                .toast-success { background: #FFFFFF; border-left: 3px solid var(--color-success); border-top: 1px solid var(--color-line); border-right: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); color: var(--color-success); }
-                .toast-error   { background: #FFFFFF; border-left: 3px solid var(--color-danger); border-top: 1px solid var(--color-line); border-right: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); color: var(--color-danger); }
+                .toast-success { background: var(--color-ink-light); border-left: 3px solid var(--color-success); border-top: 1px solid var(--color-line); border-right: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); color: var(--color-success); }
+                .toast-error   { background: var(--color-ink-light); border-left: 3px solid var(--color-danger); border-top: 1px solid var(--color-line); border-right: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); color: var(--color-danger); }
                 .toast-close {
                     background: none;
                     border: none;
@@ -72,19 +72,19 @@ function ConfirmModal({ message, onConfirm, onCancel }) {
                     padding: 1rem;
                 }
                 .modal-box {
-                    background: #FFFFFF;
-                    border: 1px solid var(--color-line);
+                    background: var(--color-ink-light);
+                    border: 1px solid var(--color-line-strong);
                     border-radius: var(--r-md);
                     padding: 1.5rem 2rem;
                     max-width: 400px;
                     width: 100%;
                     text-align: center;
-                    box-shadow: var(--shadow-raise);
+                    box-shadow: 0 8px 24px rgba(13, 35, 43, 0.4);
                 }
                 .modal-box p {
                     margin: 0 0 1.5rem;
                     font-size: 1rem;
-                    color: var(--color-ink);
+                    color: var(--color-paper);
                     line-height: 1.5;
                 }
                 .modal-actions {
@@ -93,10 +93,10 @@ function ConfirmModal({ message, onConfirm, onCancel }) {
                     justify-content: center;
                 }
                 .btn { padding: 0.65rem 1.5rem; border-radius: var(--r-sm); cursor: pointer; font-weight: 500; border: none; font-size: 0.9rem; }
-                .btn-danger   { background: var(--color-danger); color: #fff; }
+                .btn-danger   { background: var(--color-danger); color: var(--color-ink); }
                 .btn-danger:hover { opacity: 0.85; }
-                .btn-secondary { background: transparent; border: 1px solid var(--color-line-strong); color: var(--color-muted); }
-                .btn-secondary:hover { border-color: var(--color-ink); color: var(--color-ink); }
+                .btn-secondary { background: transparent; border: 1px solid var(--color-line-strong); color: var(--color-text-soft); }
+                .btn-secondary:hover { border-color: var(--color-brass-bright); color: var(--color-paper); }
             `}</style>
         </div>
     );
@@ -126,7 +126,7 @@ export default function NewsManager() {
         'Chiusura'
     ];
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
     const showToast = useCallback((message, type = 'success') => {
         setToast({ message, type });
@@ -344,30 +344,31 @@ export default function NewsManager() {
             </div>
 
             <style jsx>{`
-                .news-manager { color: var(--color-ink); }
-                .news-form { background: var(--color-panna); padding: 1.5rem; border-radius: var(--r-md); margin-bottom: 2rem; border: 1px solid var(--color-line); }
+                .news-manager { color: var(--color-paper); }
+                .news-form { background: var(--color-ink); padding: 1.5rem; border-radius: var(--r-md); margin-bottom: 2rem; border: 1px solid var(--color-line); }
                 .form-group { margin-bottom: 1rem; }
-                .form-group label { display: block; margin-bottom: 0.5rem; color: var(--color-ink); font-size: 0.8125rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; }
+                .form-group label { display: block; margin-bottom: 0.5rem; color: var(--color-text-dim); font-size: 0.8125rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; }
                 input, textarea {
                     width: 100%; padding: 0.7rem;
-                    background: #FFFFFF;
+                    background: var(--color-ink-light);
                     border: 1px solid var(--color-line-strong);
-                    color: var(--color-ink);
+                    color: var(--color-paper);
                     border-radius: var(--r-sm);
                     font-size: 0.95rem;
                     font-family: var(--font-body);
+                    color-scheme: dark;
                 }
                 input:focus, textarea:focus {
-                    outline: 2px solid var(--color-sabbia);
+                    outline: 2px solid var(--color-brass-bright);
                     outline-offset: -1px;
-                    border-color: var(--color-sabbia);
+                    border-color: var(--color-brass-bright);
                 }
 
                 .tags-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
                 .tag-btn {
-                    background: #FFFFFF;
+                    background: var(--color-ink-light);
                     border: 1px solid var(--color-line-strong);
-                    color: var(--color-muted);
+                    color: var(--color-text-soft);
                     padding: 0.35rem 0.85rem;
                     border-radius: 20px;
                     cursor: pointer;
@@ -375,18 +376,18 @@ export default function NewsManager() {
                     font-size: 0.8125rem;
                     font-family: var(--font-body);
                 }
-                .tag-btn:hover { border-color: var(--color-sabbia); color: var(--color-ink); }
-                .tag-btn.active { background: var(--color-sabbia); color: var(--color-ink); border-color: var(--color-sabbia); font-weight: 600; }
+                .tag-btn:hover { border-color: var(--color-brass-bright); color: var(--color-paper); }
+                .tag-btn.active { background: var(--color-brass-bright); color: var(--color-ink); border-color: var(--color-brass-bright); font-weight: 600; }
 
                 .form-actions { display: flex; gap: 1rem; margin-top: 1rem; }
                 .btn { padding: 0.75rem 1.5rem; border: 1px solid transparent; border-radius: var(--r-sm); cursor: pointer; font-weight: 500; font-size: 0.875rem; font-family: var(--font-body); }
-                .btn-primary { background: var(--color-sabbia); color: var(--color-ink); border-color: var(--color-sabbia); }
+                .btn-primary { background: var(--color-brass); color: var(--color-ink); border-color: var(--color-brass); }
                 .btn-primary:hover { opacity: 0.85; }
-                .btn-secondary { background: transparent; border: 1px solid var(--color-line-strong); color: var(--color-muted); }
-                .btn-secondary:hover { border-color: var(--color-ink); color: var(--color-ink); }
+                .btn-secondary { background: transparent; border: 1px solid var(--color-line-strong); color: var(--color-text-soft); }
+                .btn-secondary:hover { border-color: var(--color-brass-bright); color: var(--color-paper); }
 
                 .news-item-card {
-                    background: #FFFFFF;
+                    background: var(--color-ink-light);
                     padding: 1rem;
                     border-radius: var(--r-sm);
                     display: flex;
@@ -396,15 +397,15 @@ export default function NewsManager() {
                     margin-bottom: 1rem;
                     gap: 0.75rem;
                 }
-                .item-info h5 { margin: 0 0 0.2rem 0; font-family: var(--font-display); font-size: 1rem; font-weight: 500; color: var(--color-ink); text-transform: none; }
-                .item-info small { color: var(--color-muted); font-size: 0.8rem; }
+                .item-info h5 { margin: 0 0 0.2rem 0; font-family: var(--font-display); font-size: 1rem; font-weight: 500; color: var(--color-paper); text-transform: none; }
+                .item-info small { color: var(--color-text-soft); font-size: 0.8rem; }
                 .item-tags { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.35rem; }
                 .tag-badge {
                     font-size: 0.75rem;
                     padding: 0.15rem 0.5rem;
-                    background: rgba(223,185,136,0.12);
-                    border: 1px solid rgba(223,185,136,0.35);
-                    color: var(--color-muted);
+                    background: rgba(173,138,69,0.14);
+                    border: 1px solid rgba(173,138,69,0.35);
+                    color: var(--color-text-soft);
                     border-radius: var(--r-sm);
                 }
 
@@ -420,13 +421,13 @@ export default function NewsManager() {
                     white-space: nowrap;
                     font-family: var(--font-body);
                 }
-                .edit-btn { background: rgba(223,185,136,0.15); color: var(--color-ink); border: 1px solid rgba(223,185,136,0.4); }
-                .edit-btn:hover { background: rgba(223,185,136,0.3); }
-                .delete-btn { background: rgba(194,94,94,0.12); color: var(--color-danger); border: 1px solid rgba(194,94,94,0.3); }
-                .delete-btn:hover { background: rgba(194,94,94,0.2); }
+                .edit-btn { background: rgba(173,138,69,0.15); color: var(--color-brass-bright); border: 1px solid rgba(173,138,69,0.4); }
+                .edit-btn:hover { background: rgba(173,138,69,0.3); }
+                .delete-btn { background: rgba(217,138,125,0.12); color: var(--color-danger); border: 1px solid rgba(217,138,125,0.3); }
+                .delete-btn:hover { background: rgba(217,138,125,0.2); }
 
-                h2 { margin-bottom: 1.5rem; font-size: 1.25rem; font-weight: 500; color: var(--color-ink); text-transform: none; }
-                h3 { margin-bottom: 1rem; font-size: 1rem; font-weight: 500; color: var(--color-muted); text-transform: none; }
+                h2 { margin-bottom: 1.5rem; font-size: 1.25rem; font-weight: 500; color: var(--color-paper); text-transform: none; }
+                h3 { margin-bottom: 1rem; font-size: 1rem; font-weight: 500; color: var(--color-text-soft); text-transform: none; }
             `}</style>
         </div>
     );

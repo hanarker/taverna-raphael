@@ -62,12 +62,12 @@ export default function NewsCard({ news }) {
 
         .news-date {
           display: block;
-          font-family: var(--font-body);
+          font-family: var(--font-mono);
           font-size: var(--fs-eyebrow);
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.14em;
-          color: var(--color-muted);
+          color: var(--color-text-dim);
           margin-bottom: var(--s-2);
         }
 
@@ -75,7 +75,7 @@ export default function NewsCard({ news }) {
           font-family: var(--font-display);
           font-size: var(--fs-h3);
           font-weight: 500;
-          color: var(--color-ink);
+          color: var(--color-paper);
           line-height: 1.3;
           margin-bottom: var(--s-3);
           display: -webkit-box;
@@ -86,7 +86,7 @@ export default function NewsCard({ news }) {
 
         .news-excerpt {
           font-size: 0.9375rem;
-          color: var(--color-muted);
+          color: var(--color-text-soft);
           line-height: 1.6;
           margin-bottom: var(--s-4);
           display: -webkit-box;
@@ -99,12 +99,12 @@ export default function NewsCard({ news }) {
           display: inline-flex;
           align-items: center;
           gap: var(--s-2);
-          font-family: var(--font-body);
+          font-family: var(--font-mono);
           font-size: var(--fs-eyebrow);
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.14em;
-          color: var(--color-sabbia);
+          color: var(--color-brass-bright);
           text-decoration: none;
           position: relative;
           padding-bottom: 2px;
@@ -117,7 +117,7 @@ export default function NewsCard({ news }) {
           left: 0;
           width: 0;
           height: 1px;
-          background: var(--color-sabbia);
+          background: var(--color-brass-bright);
           transition: width var(--dur-base) var(--ease);
         }
 

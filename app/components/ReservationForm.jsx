@@ -1,24 +1,29 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { SHIFT_INFO } from '../data/shifts';
+import ReservationTicket from './ReservationTicket';
 
-const SHIFT_INFO = {
-    lunch:   { label: 'Pranzo', time: '13:00 – 15:00' },
-    dinner1: { label: 'Cena',   time: '19:30 – 21:30' },
-    dinner2: { label: 'Cena',   time: '21:30 – 23:30' },
-};
+const MIN_GUESTS = 1;
+const MAX_GUESTS = 8;
+const CLOSED_WEEKDAY = 1; // 1 = lunedì (Date.getDay())
+
+function todayISO() {
+    return new Date().toISOString().split('T')[0];
+}
 
 export default function ReservationForm() {
     const [formData, setFormData] = useState({
         firstName: '', lastName: '', email: '', phone: '',
-        date: '', turn: '', guests: '', notes: '',
+        date: '', turn: '', guests: 2, notes: '',
     });
     const [status, setStatus] = useState('idle');
     const [errorMessage, setErrorMessage] = useState('');
     const [availability, setAvailability] = useState(null);
     const [availabilityLoading, setAvailabilityLoading] = useState(false);
+    const [confirmedReservation, setConfirmedReservation] = useState(null);
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
     useEffect(() => {
         if (!formData.date) { setAvailability(null); return; }
@@ -33,8 +38,36 @@ export default function ReservationForm() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const adjustGuests = (delta) => {
+        setFormData((prev) => ({
+            ...prev,
+            guests: Math.min(MAX_GUESTS, Math.max(MIN_GUESTS, Number(prev.guests) + delta)),
+        }));
+    };
+
+    const resetForm = () => {
+        setFormData({ firstName: '', lastName: '', email: '', phone: '', date: '', turn: '', guests: 2, notes: '' });
+        setAvailability(null);
+        setConfirmedReservation(null);
+        setStatus('idle');
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!formData.turn) {
+            setErrorMessage('Seleziona un turno per continuare.');
+            setStatus('error');
+            return;
+        }
+
+        const chosenDate = new Date(`${formData.date}T12:00:00`);
+        if (chosenDate.getDay() === CLOSED_WEEKDAY) {
+            setErrorMessage('Siamo chiusi il lunedì: scegli un altro giorno.');
+            setStatus('error');
+            return;
+        }
+
         setStatus('loading');
         try {
             const res = await fetch(`${API_URL}/api/reservations`, {
@@ -46,6 +79,9 @@ export default function ReservationForm() {
                 if (res.status === 409) {
                     const data = await res.json();
                     setErrorMessage(`Turno al completo. Posti disponibili: ${data.available}`);
+                } else if (res.status === 400) {
+                    const data = await res.json();
+                    setErrorMessage(data.errors?.[0] ?? 'Dati non validi. Controlla il modulo e riprova.');
                 } else {
                     setErrorMessage(!navigator.onLine
                         ? 'Nessuna connessione internet. Controlla la rete e riprova.'
@@ -54,9 +90,9 @@ export default function ReservationForm() {
                 setStatus('error');
                 return;
             }
+            const created = await res.json();
+            setConfirmedReservation(created);
             setStatus('success');
-            setFormData({ firstName: '', lastName: '', email: '', phone: '', date: '', turn: '', guests: '', notes: '' });
-            setAvailability(null);
         } catch (error) {
             console.error(error);
             setErrorMessage('Impossibile completare la prenotazione. Riprova tra qualche minuto o chiamaci direttamente.');
@@ -71,18 +107,8 @@ export default function ReservationForm() {
 
     return (
         <div className="form-container">
-            {status === 'success' ? (
-                <div className="success-state" role="status" aria-live="polite">
-                    <div className="success-icon" aria-hidden="true">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="1.5"/>
-                            <path d="M14 24l7 7 13-14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                    </div>
-                    <h3>Prenotazione inviata</h3>
-                    <p>La tua richiesta è stata ricevuta. Ti contatteremo per conferma. A presto alla Taverna Raphael.</p>
-                    <button className="btn" onClick={() => setStatus('idle')}>Nuova Prenotazione</button>
-                </div>
+            {status === 'success' && confirmedReservation ? (
+                <ReservationTicket reservation={confirmedReservation} onReset={resetForm} />
             ) : (
                 <form onSubmit={handleSubmit} className="reservation-form" noValidate>
                     <div className="form-row">
@@ -110,11 +136,15 @@ export default function ReservationForm() {
                     <div className="form-row">
                         <div className="form-group">
                             <label htmlFor="date">Data <span aria-hidden="true">*</span></label>
-                            <input id="date" type="date" name="date" value={formData.date} onChange={handleChange} required />
+                            <input id="date" type="date" name="date" min={todayISO()} value={formData.date} onChange={handleChange} required />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="guests">Ospiti <span aria-hidden="true">*</span></label>
-                            <input id="guests" type="number" name="guests" min="1" max="20" value={formData.guests} onChange={handleChange} required placeholder="2" />
+                            <label htmlFor="guestCount">Ospiti <span aria-hidden="true">*</span></label>
+                            <div className="stepper" id="guestCount">
+                                <button type="button" onClick={() => adjustGuests(-1)} aria-label="Diminuisci ospiti" disabled={formData.guests <= MIN_GUESTS}>−</button>
+                                <span aria-live="polite">{formData.guests}</span>
+                                <button type="button" onClick={() => adjustGuests(1)} aria-label="Aumenta ospiti" disabled={formData.guests >= MAX_GUESTS}>+</button>
+                            </div>
                         </div>
                     </div>
 
@@ -169,8 +199,8 @@ export default function ReservationForm() {
 
             <style jsx>{`
         .form-container {
-          background: #FFFFFF;
-          border: 1px solid var(--color-line);
+          background: var(--color-ink);
+          border: 1px solid var(--color-line-strong);
           border-radius: var(--r-md);
           padding: var(--s-12);
         }
@@ -194,60 +224,90 @@ export default function ReservationForm() {
         }
 
         label {
-          font-family: var(--font-body);
-          font-size: var(--fs-eyebrow);
+          font-family: var(--font-mono);
+          font-size: 0.7rem;
           font-weight: 500;
           text-transform: uppercase;
-          letter-spacing: 0.10em;
-          color: var(--color-ink);
+          letter-spacing: 0.08em;
+          color: var(--color-text-dim);
         }
 
         label span {
-          color: var(--color-sabbia);
+          color: var(--color-brass-bright);
         }
 
         input, textarea {
-          border: none;
-          border-bottom: 1.5px solid var(--color-line-strong);
-          background: transparent;
-          padding: var(--s-3) 0;
-          color: var(--color-ink);
+          background: var(--color-ink-light);
+          border: 1px solid var(--color-line-strong);
+          border-radius: var(--r-sm);
+          color: var(--color-paper);
+          padding: var(--s-3);
           font-family: var(--font-body);
-          font-size: 1rem;
+          font-size: 0.95rem;
           transition: border-color var(--dur-fast) var(--ease);
-          border-radius: 0;
-          color-scheme: light;
-          -webkit-appearance: none;
+          color-scheme: dark;
         }
 
         input::placeholder, textarea::placeholder {
-          color: var(--color-muted);
+          color: var(--color-text-dim);
           font-style: italic;
-          opacity: 0.7;
+          opacity: 0.8;
         }
 
         input:focus, textarea:focus {
-          border-bottom: 2px solid var(--color-sabbia);
+          border-color: var(--color-brass-bright);
           outline: none;
-        }
-
-        input::-webkit-calendar-picker-indicator {
-          opacity: 0.5;
-          cursor: pointer;
-        }
-
-        input::-webkit-calendar-picker-indicator:hover {
-          opacity: 0.8;
         }
 
         textarea {
           resize: vertical;
           min-height: 80px;
-          border-bottom: 1.5px solid var(--color-line-strong);
         }
 
-        textarea:focus {
-          border-bottom: 2px solid var(--color-sabbia);
+        /* Stepper ospiti */
+        .stepper {
+          display: flex;
+          align-items: center;
+          gap: var(--s-4);
+          background: var(--color-ink-light);
+          border: 1px solid var(--color-line-strong);
+          border-radius: var(--r-sm);
+          padding: 0.4rem var(--s-4);
+        }
+
+        .stepper button {
+          background: none;
+          border: 1px solid var(--color-brass);
+          color: var(--color-brass-bright);
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          font-size: 1.1rem;
+          cursor: pointer;
+          line-height: 1;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+        }
+
+        .stepper button:hover:not(:disabled) {
+          background: var(--color-brass);
+          color: var(--color-ink);
+        }
+
+        .stepper button:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+
+        .stepper span {
+          font-family: var(--font-mono);
+          font-size: 1.05rem;
+          flex: 1;
+          text-align: center;
+          color: var(--color-paper);
         }
 
         /* Turn selector */
@@ -262,24 +322,24 @@ export default function ReservationForm() {
         }
 
         .turn-fieldset legend {
-          font-family: var(--font-body);
-          font-size: var(--fs-eyebrow);
+          font-family: var(--font-mono);
+          font-size: 0.7rem;
           font-weight: 500;
           text-transform: uppercase;
-          letter-spacing: 0.10em;
-          color: var(--color-ink);
+          letter-spacing: 0.08em;
+          color: var(--color-text-dim);
           margin-bottom: var(--s-3);
           float: left;
           width: 100%;
         }
 
         .turn-fieldset legend span {
-          color: var(--color-sabbia);
+          color: var(--color-brass-bright);
         }
 
         .avail-loading {
           font-size: 0.8125rem;
-          color: var(--color-muted);
+          color: var(--color-text-dim);
           font-style: italic;
           margin: var(--s-2) 0;
           clear: both;
@@ -303,7 +363,8 @@ export default function ReservationForm() {
           align-items: center;
           gap: var(--s-1);
           padding: var(--s-4) var(--s-3);
-          border: 1.5px solid var(--color-line-strong);
+          background: var(--color-ink-light);
+          border: 1px solid var(--color-line-strong);
           border-radius: var(--r-sm);
           cursor: pointer;
           transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
@@ -320,13 +381,12 @@ export default function ReservationForm() {
         }
 
         .turn-option:hover:not(.full) {
-          border-color: var(--color-sabbia);
-          background: rgba(223, 185, 136, 0.06);
+          border-color: var(--color-brass-bright);
         }
 
         .turn-option.selected {
-          border-color: var(--color-sabbia);
-          background: rgba(223, 185, 136, 0.10);
+          border-color: var(--color-brass-bright);
+          background: rgba(201, 163, 95, 0.12);
         }
 
         .turn-option.full {
@@ -338,13 +398,13 @@ export default function ReservationForm() {
           font-family: var(--font-body);
           font-weight: 600;
           font-size: 0.9375rem;
-          color: var(--color-ink);
+          color: var(--color-paper);
         }
 
         .turn-time {
-          font-family: var(--font-body);
-          font-size: 0.8125rem;
-          color: var(--color-muted);
+          font-family: var(--font-mono);
+          font-size: 0.8rem;
+          color: var(--color-text-soft);
         }
 
         .turn-full-badge {
@@ -353,14 +413,14 @@ export default function ReservationForm() {
           text-transform: uppercase;
           letter-spacing: 0.08em;
           color: var(--color-danger);
-          background: rgba(194, 94, 94, 0.10);
+          background: rgba(217, 138, 125, 0.12);
           padding: 0.15rem 0.4rem;
           border-radius: 2px;
           margin-top: var(--s-1);
         }
 
         .turn-option:focus-within {
-          outline: 2px solid var(--color-sabbia);
+          outline: 2px solid var(--color-brass-bright);
           outline-offset: 2px;
         }
 
@@ -383,34 +443,6 @@ export default function ReservationForm() {
         .btn-submit:disabled {
           opacity: 0.55;
           cursor: not-allowed;
-        }
-
-        /* Success state */
-        .success-state {
-          text-align: center;
-          padding: var(--s-12) var(--s-8);
-        }
-
-        .success-icon {
-          color: var(--color-sabbia);
-          margin-bottom: var(--s-6);
-          animation: fadeIn var(--dur-base) var(--ease) both;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .success-icon { animation: none; }
-        }
-
-        .success-state h3 {
-          font-size: 1.5rem;
-          color: var(--color-ink);
-          margin-bottom: var(--s-3);
-        }
-
-        .success-state p {
-          color: var(--color-muted);
-          margin-bottom: var(--s-8);
-          line-height: 1.65;
         }
 
         .error-text {

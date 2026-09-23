@@ -94,7 +94,7 @@ export default function CookiePolicyPage() {
 
             <style jsx>{`
                 .page-hero {
-                    background: var(--color-panna);
+                    background: var(--color-ink-light);
                     padding: calc(80px + var(--s-12)) 0 var(--s-12);
                 }
 
@@ -114,7 +114,7 @@ export default function CookiePolicyPage() {
 
                 .last-update {
                     font-size: 0.875rem;
-                    color: var(--color-muted);
+                    color: var(--color-text-soft);
                     font-style: italic;
                     margin: 0;
                 }
@@ -129,7 +129,7 @@ export default function CookiePolicyPage() {
 
                 .policy-section h2 {
                     font-size: 1.5rem;
-                    color: var(--color-ink);
+                    color: var(--color-paper);
                     margin-bottom: var(--s-3);
                     padding-bottom: var(--s-3);
                     border-bottom: 1px solid var(--color-line);
@@ -143,17 +143,17 @@ export default function CookiePolicyPage() {
                     left: 0;
                     width: 32px;
                     height: 2px;
-                    background: var(--color-sabbia);
+                    background: var(--color-brass-bright);
                 }
 
                 .policy-section p {
-                    color: var(--color-muted);
+                    color: var(--color-text-soft);
                     line-height: 1.8;
                     margin-bottom: var(--s-4);
                 }
 
                 .policy-section strong {
-                    color: var(--color-ink);
+                    color: var(--color-paper);
                     font-weight: 600;
                 }
 
@@ -171,21 +171,21 @@ export default function CookiePolicyPage() {
                 }
 
                 .policy-table th {
-                    font-family: var(--font-body);
+                    font-family: var(--font-mono);
                     font-size: var(--fs-eyebrow);
                     font-weight: 500;
                     letter-spacing: 0.12em;
                     text-transform: uppercase;
-                    color: var(--color-sabbia);
+                    color: var(--color-brass-bright);
                     padding: var(--s-4);
                     text-align: left;
-                    background: var(--color-panna);
+                    background: var(--color-ink-light);
                     border-bottom: 1px solid var(--color-line);
                 }
 
                 .policy-table td {
                     padding: var(--s-4);
-                    color: var(--color-muted);
+                    color: var(--color-text-soft);
                     border-bottom: 1px solid var(--color-line);
                     vertical-align: top;
                     line-height: 1.6;
@@ -196,17 +196,17 @@ export default function CookiePolicyPage() {
                 }
 
                 .policy-table tr:nth-child(even) td {
-                    background: var(--color-panna);
+                    background: var(--color-ink-light);
                 }
 
                 :global(code) {
-                    font-family: monospace;
-                    background: var(--color-panna);
+                    font-family: var(--font-mono);
+                    background: var(--color-ink-light);
                     border: 1px solid var(--color-line);
                     padding: 0.1rem 0.35rem;
                     border-radius: 2px;
                     font-size: 0.85em;
-                    color: var(--color-ink);
+                    color: var(--color-paper);
                 }
 
                 .policy-list {
@@ -216,23 +216,23 @@ export default function CookiePolicyPage() {
                 }
 
                 .policy-list li {
-                    color: var(--color-muted);
+                    color: var(--color-text-soft);
                     padding: var(--s-3) 0 var(--s-3) var(--s-4);
-                    border-left: 2px solid var(--color-sabbia);
+                    border-left: 2px solid var(--color-brass-bright);
                     margin-bottom: var(--s-2);
                     line-height: 1.6;
                 }
 
                 .policy-link {
-                    color: var(--color-ink);
+                    color: var(--color-paper);
                     font-weight: 500;
                     text-decoration: underline;
-                    text-decoration-color: var(--color-sabbia);
+                    text-decoration-color: var(--color-brass-bright);
                     text-underline-offset: 3px;
                 }
 
                 .policy-link:hover {
-                    color: var(--color-sabbia);
+                    color: var(--color-brass-bright);
                 }
             `}</style>
         </>

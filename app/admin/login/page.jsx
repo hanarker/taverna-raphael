@@ -13,7 +13,7 @@ export default function AdminLogin() {
     e.preventDefault();
     setError('');
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
       const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -35,8 +35,7 @@ export default function AdminLogin() {
     <div className="login-container">
       <div className="login-box">
         <div className="login-brand">
-          <span className="brand-display">Taverna</span>
-          <span className="brand-script">Raphael</span>
+          <span className="brand-display">Taverna Raphael</span>
         </div>
         <h1>Area Riservata</h1>
         {error && <p className="error" role="alert">{error}</p>}
@@ -59,18 +58,18 @@ export default function AdminLogin() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: var(--color-panna);
+          background: var(--color-ink);
           padding: var(--s-6);
         }
 
         .login-box {
-          background: #FFFFFF;
+          background: var(--color-ink-light);
           padding: var(--s-12);
           border-radius: var(--r-md);
-          border: 1px solid var(--color-line);
+          border: 1px solid var(--color-line-strong);
           width: 100%;
           max-width: 400px;
-          box-shadow: var(--shadow-raise);
+          box-shadow: 0 8px 24px rgba(13, 35, 43, 0.4);
         }
 
         .login-brand {
@@ -82,24 +81,18 @@ export default function AdminLogin() {
 
         .brand-display {
           font-family: var(--font-display);
-          font-size: 1.25rem;
+          font-style: italic;
+          font-size: 1.5rem;
           font-weight: 600;
-          letter-spacing: 0.06em;
-          color: var(--color-ink);
-        }
-
-        .brand-script {
-          font-family: var(--font-script);
-          font-size: 1.75rem;
-          color: var(--color-sabbia);
-          line-height: 1.2;
+          letter-spacing: 0.02em;
+          color: var(--color-brass-bright);
         }
 
         h1 {
           text-align: center;
           font-size: 1.25rem;
           font-weight: 500;
-          color: var(--color-muted);
+          color: var(--color-text-soft);
           margin-bottom: var(--s-8);
           letter-spacing: 0.02em;
         }
@@ -112,12 +105,12 @@ export default function AdminLogin() {
         }
 
         label {
-          font-family: var(--font-body);
+          font-family: var(--font-mono);
           font-size: var(--fs-eyebrow);
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.10em;
-          color: var(--color-ink);
+          color: var(--color-text-dim);
         }
 
         input {
@@ -126,15 +119,16 @@ export default function AdminLogin() {
           background: transparent;
           border: none;
           border-bottom: 1.5px solid var(--color-line-strong);
-          color: var(--color-ink);
+          color: var(--color-paper);
           font-family: var(--font-body);
           font-size: 1rem;
           transition: border-color var(--dur-fast) var(--ease);
           border-radius: 0;
+          color-scheme: dark;
         }
 
         input:focus {
-          border-bottom: 2px solid var(--color-sabbia);
+          border-bottom: 2px solid var(--color-brass-bright);
           outline: none;
         }
 
