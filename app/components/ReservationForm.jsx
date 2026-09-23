@@ -1,208 +1,193 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { SHIFT_INFO } from '../data/shifts';
+import { useState } from 'react';
+import Link from 'next/link';
 import ReservationTicket from './ReservationTicket';
+import ShiftPicker from './reservation/ShiftPicker';
+import PhoneField, { DEFAULT_DIAL_CODE } from './reservation/PhoneField';
+import useAvailability from '../hooks/useAvailability';
+import { createReservation } from '../services/reservationsApi';
+import { todayRome, addDaysISO } from '../utils/dates';
 
 const MIN_GUESTS = 1;
 const MAX_GUESTS = 8;
-const CLOSED_WEEKDAY = 1; // 1 = lunedì (Date.getDay())
+const BOOKING_WINDOW_DAYS = 30;
+const ITALIAN_DIAL_CODE = '+39';
+const GENERIC_ERROR = 'Impossibile completare la prenotazione. Riprova tra qualche minuto o chiamaci direttamente.';
 
-function todayISO() {
-    return new Date().toISOString().split('T')[0];
+const EMPTY_FORM = {
+    firstName: '', lastName: '', email: '', dialCode: DEFAULT_DIAL_CODE, phoneNumber: '',
+    date: '', startTime: '', guests: 2, notes: '', consent: false,
+};
+
+// I numeri esteri non usano lo zero iniziale nazionale (prefisso di linea): in Italia invece fa parte del numero.
+function buildPhone({ dialCode, phoneNumber }) {
+    const digits = phoneNumber.replace(/[^\d]/g, '');
+    const national = dialCode === ITALIAN_DIAL_CODE ? digits : digits.replace(/^0+/, '');
+    return `${dialCode}${national}`;
 }
 
 export default function ReservationForm() {
-    const [formData, setFormData] = useState({
-        firstName: '', lastName: '', email: '', phone: '',
-        date: '', turn: '', guests: 2, notes: '',
-    });
+    const [formData, setFormData] = useState(EMPTY_FORM);
     const [status, setStatus] = useState('idle');
     const [errorMessage, setErrorMessage] = useState('');
-    const [availability, setAvailability] = useState(null);
-    const [availabilityLoading, setAvailabilityLoading] = useState(false);
     const [confirmedReservation, setConfirmedReservation] = useState(null);
+    const { availability, isLoading, hasError } = useAvailability(formData.date);
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+    const today = todayRome();
+    const lastBookableDay = addDaysISO(today, BOOKING_WINDOW_DAYS);
 
-    useEffect(() => {
-        if (!formData.date) { setAvailability(null); return; }
-        setAvailabilityLoading(true);
-        fetch(`${API_URL}/api/reservations/availability?date=${formData.date}`)
-            .then(r => r.json())
-            .then(data => { setAvailability(data); setAvailabilityLoading(false); })
-            .catch(() => setAvailabilityLoading(false));
-    }, [formData.date]);
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const adjustGuests = (delta) => {
-        setFormData((prev) => ({
-            ...prev,
-            guests: Math.min(MAX_GUESTS, Math.max(MIN_GUESTS, Number(prev.guests) + delta)),
-        }));
-    };
+    const updateField = (patch) => setFormData((prev) => ({ ...prev, ...patch }));
+    const handleChange = (e) => updateField({ [e.target.name]: e.target.value });
+    const handleDateChange = (e) => updateField({ date: e.target.value, startTime: '' });
+    const adjustGuests = (delta) => updateField({
+        guests: Math.min(MAX_GUESTS, Math.max(MIN_GUESTS, Number(formData.guests) + delta)),
+    });
 
     const resetForm = () => {
-        setFormData({ firstName: '', lastName: '', email: '', phone: '', date: '', turn: '', guests: 2, notes: '' });
-        setAvailability(null);
+        setFormData(EMPTY_FORM);
         setConfirmedReservation(null);
+        setErrorMessage('');
         setStatus('idle');
+    };
+
+    const selectedShift = availability?.shifts?.find((s) => s.startTime === formData.startTime);
+    const isSelectionStale = Boolean(formData.startTime) && availability && !selectedShift;
+    const hasTooFewSeats = Boolean(selectedShift) && selectedShift.bookable && Number(formData.guests) > selectedShift.available;
+    const seatsMessage = availability?.insufficientSeatsMessage
+        ?? 'Posti insufficienti per questo turno, prova un altro orario o riduci il numero di persone.';
+
+    const fail = (message) => {
+        setErrorMessage(message);
+        setStatus('error');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (!formData.turn) {
-            setErrorMessage('Seleziona un turno per continuare.');
-            setStatus('error');
-            return;
-        }
-
-        const chosenDate = new Date(`${formData.date}T12:00:00`);
-        if (chosenDate.getDay() === CLOSED_WEEKDAY) {
-            setErrorMessage('Siamo chiusi il lunedì: scegli un altro giorno.');
-            setStatus('error');
-            return;
-        }
+        if (!formData.startTime) return fail('Seleziona un turno per continuare.');
+        if (isSelectionStale || (selectedShift && !selectedShift.bookable)) return fail('Il turno selezionato non è più disponibile: scegline un altro.');
+        if (hasTooFewSeats) return fail(seatsMessage);
+        if (!formData.consent) return fail('Per prenotare è necessario acconsentire al trattamento dei dati.');
 
         setStatus('loading');
         try {
-            const res = await fetch(`${API_URL}/api/reservations`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+            const { ok, data } = await createReservation({
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                phone: buildPhone(formData),
+                date: formData.date,
+                startTime: formData.startTime,
+                guests: Number(formData.guests),
+                notes: formData.notes,
+                consent: formData.consent,
             });
-            if (!res.ok) {
-                if (res.status === 409) {
-                    const data = await res.json();
-                    setErrorMessage(`Turno al completo. Posti disponibili: ${data.available}`);
-                } else if (res.status === 400) {
-                    const data = await res.json();
-                    setErrorMessage(data.errors?.[0] ?? 'Dati non validi. Controlla il modulo e riprova.');
-                } else {
-                    setErrorMessage(!navigator.onLine
-                        ? 'Nessuna connessione internet. Controlla la rete e riprova.'
-                        : 'Impossibile completare la prenotazione. Riprova tra qualche minuto o chiamaci direttamente.');
-                }
-                setStatus('error');
-                return;
-            }
-            const created = await res.json();
-            setConfirmedReservation(created);
+            if (!ok) return fail(data.error ?? (navigator.onLine ? GENERIC_ERROR : 'Nessuna connessione internet. Controlla la rete e riprova.'));
+
+            setConfirmedReservation(data);
             setStatus('success');
         } catch (error) {
             console.error(error);
-            setErrorMessage('Impossibile completare la prenotazione. Riprova tra qualche minuto o chiamaci direttamente.');
-            setStatus('error');
+            fail(GENERIC_ERROR);
         }
     };
 
-    const selectedAvail = formData.turn && availability?.shifts?.[formData.turn];
-    const showWarning = selectedAvail &&
-        selectedAvail.available > 0 &&
-        Number(formData.guests) > selectedAvail.available;
+    if (status === 'success' && confirmedReservation) {
+        return (
+            <div className="form-container">
+                <ReservationTicket reservation={confirmedReservation} onReset={resetForm} />
+                <style jsx>{`
+                    .form-container { background: var(--color-ink); border: 1px solid var(--color-line-strong); border-radius: var(--r-md); padding: var(--s-8); }
+                    @media (max-width: 600px) { .form-container { padding: var(--s-6); } }
+                `}</style>
+            </div>
+        );
+    }
 
     return (
         <div className="form-container">
-            {status === 'success' && confirmedReservation ? (
-                <ReservationTicket reservation={confirmedReservation} onReset={resetForm} />
-            ) : (
-                <form onSubmit={handleSubmit} className="reservation-form" noValidate>
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label htmlFor="firstName">Nome <span aria-hidden="true">*</span></label>
-                            <input id="firstName" type="text" name="firstName" autoComplete="given-name" value={formData.firstName} onChange={handleChange} required placeholder="Mario" />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="lastName">Cognome <span aria-hidden="true">*</span></label>
-                            <input id="lastName" type="text" name="lastName" autoComplete="family-name" value={formData.lastName} onChange={handleChange} required placeholder="Rossi" />
-                        </div>
-                    </div>
-
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label htmlFor="email">Email <span aria-hidden="true">*</span></label>
-                            <input id="email" type="email" name="email" autoComplete="email" value={formData.email} onChange={handleChange} required placeholder="mario@email.it" />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="phone">Telefono <span aria-hidden="true">*</span></label>
-                            <input id="phone" type="tel" name="phone" autoComplete="tel" value={formData.phone} onChange={handleChange} required placeholder="+39 081 1234567" />
-                        </div>
-                    </div>
-
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label htmlFor="date">Data <span aria-hidden="true">*</span></label>
-                            <input id="date" type="date" name="date" min={todayISO()} value={formData.date} onChange={handleChange} required />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="guestCount">Ospiti <span aria-hidden="true">*</span></label>
-                            <div className="stepper" id="guestCount">
-                                <button type="button" onClick={() => adjustGuests(-1)} aria-label="Diminuisci ospiti" disabled={formData.guests <= MIN_GUESTS}>−</button>
-                                <span aria-live="polite">{formData.guests}</span>
-                                <button type="button" onClick={() => adjustGuests(1)} aria-label="Aumenta ospiti" disabled={formData.guests >= MAX_GUESTS}>+</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="form-group turn-group">
-                        <fieldset className="turn-fieldset">
-                            <legend>Turno <span aria-hidden="true">*</span></legend>
-                            {availabilityLoading && <p className="avail-loading">Controllo disponibilità…</p>}
-                            <div className="turn-options">
-                                {Object.entries(SHIFT_INFO).map(([key, info]) => {
-                                    const avail = availability?.shifts?.[key];
-                                    const isFull = avail?.available === 0;
-                                    return (
-                                        <label key={key} className={`turn-option${isFull ? ' full' : ''}${formData.turn === key ? ' selected' : ''}`}>
-                                            <input
-                                                type="radio"
-                                                name="turn"
-                                                value={key}
-                                                checked={formData.turn === key}
-                                                onChange={handleChange}
-                                                disabled={isFull}
-                                                required
-                                            />
-                                            <span className="turn-label">{info.label}</span>
-                                            <span className="turn-time">{info.time}</span>
-                                            {isFull && <span className="turn-full-badge">Al completo</span>}
-                                        </label>
-                                    );
-                                })}
-                            </div>
-                        </fieldset>
-                        {showWarning && (
-                            <p className="turn-warning" role="alert">
-                                Solo {selectedAvail.available} {selectedAvail.available === 1 ? 'posto rimasto' : 'posti rimasti'} in questo turno
-                            </p>
-                        )}
-                    </div>
-
+            <form onSubmit={handleSubmit} className="reservation-form" noValidate>
+                <div className="form-row">
                     <div className="form-group">
-                        <label htmlFor="notes">Note Speciali</label>
-                        <textarea id="notes" name="notes" rows="3" value={formData.notes} onChange={handleChange} placeholder="Allergie, occasioni speciali, richieste particolari…"></textarea>
+                        <label htmlFor="firstName">Nome <span aria-hidden="true">*</span></label>
+                        <input id="firstName" type="text" name="firstName" autoComplete="given-name" maxLength={80} value={formData.firstName} onChange={handleChange} required placeholder="Mario" />
                     </div>
-
-                    <button type="submit" className="btn btn-submit" disabled={status === 'loading'}>
-                        {status === 'loading' ? 'Invio in corso…' : 'Prenota Tavolo'}
-                    </button>
-
-                    <div role="alert" aria-live="assertive" aria-atomic="true">
-                        {status === 'error' && <p className="error-text">{errorMessage}</p>}
+                    <div className="form-group">
+                        <label htmlFor="lastName">Cognome <span aria-hidden="true">*</span></label>
+                        <input id="lastName" type="text" name="lastName" autoComplete="family-name" maxLength={80} value={formData.lastName} onChange={handleChange} required placeholder="Rossi" />
                     </div>
-                </form>
-            )}
+                </div>
+
+                <div className="form-group field-full">
+                    <label htmlFor="email">Email <span aria-hidden="true">*</span></label>
+                    <input id="email" type="email" name="email" autoComplete="email" maxLength={160} value={formData.email} onChange={handleChange} required placeholder="mario@email.it" />
+                </div>
+
+                <div className="form-group field-full">
+                    <label htmlFor="phone">Telefono <span aria-hidden="true">*</span></label>
+                    <PhoneField dialCode={formData.dialCode} number={formData.phoneNumber} onChange={updateField} />
+                </div>
+
+                <div className="form-row">
+                    <div className="form-group">
+                        <label htmlFor="date">Data <span aria-hidden="true">*</span></label>
+                        <input id="date" type="date" name="date" min={today} max={lastBookableDay} value={formData.date} onChange={handleDateChange} required />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="guestCount">Ospiti <span aria-hidden="true">*</span></label>
+                        <div className="stepper" id="guestCount">
+                            <button type="button" onClick={() => adjustGuests(-1)} aria-label="Diminuisci ospiti" disabled={formData.guests <= MIN_GUESTS}>−</button>
+                            <span aria-live="polite">{formData.guests}</span>
+                            <button type="button" onClick={() => adjustGuests(1)} aria-label="Aumenta ospiti" disabled={formData.guests >= MAX_GUESTS}>+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="form-group turn-group">
+                    <ShiftPicker
+                        shifts={availability?.shifts ?? null}
+                        selected={formData.startTime}
+                        onSelect={(startTime) => updateField({ startTime })}
+                        isLoading={isLoading}
+                        hasDate={Boolean(formData.date)}
+                    />
+                    {hasError && <p className="turn-warning" role="alert">Non riusciamo a verificare la disponibilità: riprova o chiamaci.</p>}
+                    {hasTooFewSeats && <p className="turn-warning" role="alert">{seatsMessage}</p>}
+                    {isSelectionStale && <p className="turn-warning" role="alert">Il turno scelto non è più disponibile: selezionane un altro.</p>}
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="notes">Note Speciali</label>
+                    <textarea id="notes" name="notes" rows="3" maxLength={1000} value={formData.notes} onChange={handleChange} placeholder="Allergie, occasioni speciali, richieste particolari…"></textarea>
+                </div>
+
+                <div className="consent">
+                    <input id="consent" type="checkbox" checked={formData.consent} onChange={(e) => updateField({ consent: e.target.checked })} required />
+                    <label htmlFor="consent">
+                        Acconsento al trattamento dei miei dati per gestire la prenotazione e all&apos;invio di comunicazioni via WhatsApp ed email
+                        (conferma, promemoria, eventuali variazioni). Ho letto l&apos;<Link href="/privacy" target="_blank">informativa privacy</Link>. <span aria-hidden="true">*</span>
+                    </label>
+                </div>
+
+                <button type="submit" className="btn btn-submit" disabled={status === 'loading' || hasTooFewSeats}>
+                    {status === 'loading' ? 'Invio in corso…' : 'Prenota Tavolo'}
+                </button>
+
+                <div role="alert" aria-live="assertive" aria-atomic="true">
+                    {status === 'error' && <p className="error-text">{errorMessage}</p>}
+                </div>
+            </form>
 
             <style jsx>{`
         .form-container {
           background: var(--color-ink);
           border: 1px solid var(--color-line-strong);
           border-radius: var(--r-md);
-          padding: var(--s-12);
+          padding: var(--s-8);
+        }
+
+        @media (max-width: 600px) {
+          .form-container { padding: var(--s-6); }
         }
 
         .form-row {
@@ -215,6 +200,8 @@ export default function ReservationForm() {
         @media (max-width: 600px) {
           .form-row { grid-template-columns: 1fr; }
         }
+
+        .field-full { margin-bottom: var(--s-6); }
 
         .form-group {
           display: flex;
@@ -232,16 +219,15 @@ export default function ReservationForm() {
           color: var(--color-text-dim);
         }
 
-        label span {
-          color: var(--color-brass-bright);
-        }
+        label span { color: var(--color-brass-bright); }
 
-        input, textarea {
+        input:not([type="checkbox"]), textarea {
           background: var(--color-ink-light);
           border: 1px solid var(--color-line-strong);
           border-radius: var(--r-sm);
           color: var(--color-paper);
           padding: var(--s-3);
+          min-height: 44px;
           font-family: var(--font-body);
           font-size: 0.95rem;
           transition: border-color var(--dur-fast) var(--ease);
@@ -254,17 +240,11 @@ export default function ReservationForm() {
           opacity: 0.8;
         }
 
-        input:focus, textarea:focus {
-          border-color: var(--color-brass-bright);
-          outline: none;
-        }
+        input:focus, textarea:focus { border-color: var(--color-brass-bright); outline: none; }
+        input:focus-visible, textarea:focus-visible { outline: 2px solid var(--color-brass-bright); outline-offset: 2px; }
 
-        textarea {
-          resize: vertical;
-          min-height: 80px;
-        }
+        textarea { resize: vertical; min-height: 80px; }
 
-        /* Stepper ospiti */
         .stepper {
           display: flex;
           align-items: center;
@@ -279,8 +259,8 @@ export default function ReservationForm() {
           background: none;
           border: 1px solid var(--color-brass);
           color: var(--color-brass-bright);
-          width: 30px;
-          height: 30px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
           font-size: 1.1rem;
           cursor: pointer;
@@ -292,15 +272,9 @@ export default function ReservationForm() {
           transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
         }
 
-        .stepper button:hover:not(:disabled) {
-          background: var(--color-brass);
-          color: var(--color-ink);
-        }
-
-        .stepper button:disabled {
-          opacity: 0.4;
-          cursor: not-allowed;
-        }
+        .stepper button:hover:not(:disabled) { background: var(--color-brass); color: var(--color-ink); }
+        .stepper button:focus-visible { outline: 2px solid var(--color-brass-bright); outline-offset: 2px; }
+        .stepper button:disabled { opacity: 0.4; cursor: not-allowed; }
 
         .stepper span {
           font-family: var(--font-mono);
@@ -310,125 +284,34 @@ export default function ReservationForm() {
           color: var(--color-paper);
         }
 
-        /* Turn selector */
-        .turn-group {
-          margin-bottom: var(--s-6);
-        }
-
-        .turn-fieldset {
-          border: none;
-          padding: 0;
-          margin: 0;
-        }
-
-        .turn-fieldset legend {
-          font-family: var(--font-mono);
-          font-size: 0.7rem;
-          font-weight: 500;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          color: var(--color-text-dim);
-          margin-bottom: var(--s-3);
-          float: left;
-          width: 100%;
-        }
-
-        .turn-fieldset legend span {
-          color: var(--color-brass-bright);
-        }
-
-        .avail-loading {
-          font-size: 0.8125rem;
-          color: var(--color-text-dim);
-          font-style: italic;
-          margin: var(--s-2) 0;
-          clear: both;
-        }
-
-        .turn-options {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: var(--s-3);
-          clear: both;
-          margin-top: var(--s-2);
-        }
-
-        @media (max-width: 600px) {
-          .turn-options { grid-template-columns: 1fr; }
-        }
-
-        .turn-option {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: var(--s-1);
-          padding: var(--s-4) var(--s-3);
-          background: var(--color-ink-light);
-          border: 1px solid var(--color-line-strong);
-          border-radius: var(--r-sm);
-          cursor: pointer;
-          transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
-          position: relative;
-          text-align: center;
-        }
-
-        .turn-option input[type="radio"] {
-          position: absolute;
-          opacity: 0;
-          width: 0;
-          height: 0;
-          border: none;
-        }
-
-        .turn-option:hover:not(.full) {
-          border-color: var(--color-brass-bright);
-        }
-
-        .turn-option.selected {
-          border-color: var(--color-brass-bright);
-          background: rgba(201, 163, 95, 0.12);
-        }
-
-        .turn-option.full {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-
-        .turn-label {
-          font-family: var(--font-body);
-          font-weight: 600;
-          font-size: 0.9375rem;
-          color: var(--color-paper);
-        }
-
-        .turn-time {
-          font-family: var(--font-mono);
-          font-size: 0.8rem;
-          color: var(--color-text-soft);
-        }
-
-        .turn-full-badge {
-          font-size: 0.6875rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          color: var(--color-danger);
-          background: rgba(217, 138, 125, 0.12);
-          padding: 0.15rem 0.4rem;
-          border-radius: 2px;
-          margin-top: var(--s-1);
-        }
-
-        .turn-option:focus-within {
-          outline: 2px solid var(--color-brass-bright);
-          outline-offset: 2px;
-        }
+        .turn-group { margin-bottom: var(--s-6); }
 
         .turn-warning {
           font-size: 0.8125rem;
           color: var(--color-warning);
           margin: var(--s-2) 0 0;
         }
+
+        .consent {
+          display: flex;
+          gap: var(--s-3);
+          align-items: flex-start;
+          margin-top: var(--s-6);
+        }
+
+        .consent input { width: 24px; height: 24px; flex-shrink: 0; margin-top: 2px; accent-color: var(--color-brass); }
+        .consent input:focus-visible { outline: 2px solid var(--color-brass-bright); outline-offset: 2px; }
+
+        .consent label {
+          font-family: var(--font-body);
+          font-size: 0.8125rem;
+          text-transform: none;
+          letter-spacing: 0;
+          line-height: 1.5;
+          color: var(--color-text-soft);
+        }
+
+        .consent :global(a) { color: var(--color-brass-bright); text-decoration: underline; }
 
         .btn-submit {
           width: 100%;
@@ -440,10 +323,7 @@ export default function ReservationForm() {
           text-align: center;
         }
 
-        .btn-submit:disabled {
-          opacity: 0.55;
-          cursor: not-allowed;
-        }
+        .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
 
         .error-text {
           color: var(--color-danger);
@@ -451,6 +331,10 @@ export default function ReservationForm() {
           margin-top: var(--s-4);
           font-size: 0.9rem;
           line-height: 1.5;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          input, textarea, .stepper button { transition: none; }
         }
       `}</style>
         </div>

@@ -13,7 +13,7 @@ export default function PrenotaSection() {
         <div ref={refInfo} className={`prenota-info reveal${infoVisible ? ' is-visible' : ''}`}>
           <span className="eyebrow">Prenotazione diretta</span>
           <h2>Riserviamo il tavolo, tu pensa alla fame.</h2>
-          <p>Confermiamo ogni richiesta entro poche ore. Per gruppi oltre le 8 persone o eventi privati, scrivici direttamente.</p>
+          <p>La conferma arriva subito su WhatsApp. Per gruppi oltre le 8 persone o eventi privati, scrivici direttamente.</p>
           <div className="info-row"><div className="k">Telefono</div><div>+39 366 357 5967</div></div>
           <div className="info-row"><div className="k">Servizi</div><div>Pranzo e cena, dal martedì alla domenica</div></div>
           <div className="info-row"><div className="k">Chiusura</div><div>Lunedì</div></div>
@@ -34,9 +34,9 @@ export default function PrenotaSection() {
 
         .prenota-wrap {
           display: grid;
-          grid-template-columns: 0.9fr 1.1fr;
-          gap: var(--s-16);
-          max-width: 1080px;
+          grid-template-columns: 0.7fr 1.3fr;
+          gap: var(--s-12);
+          max-width: 1240px;
           align-items: flex-start;
         }
 

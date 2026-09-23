@@ -1,6 +1,6 @@
 'use client';
 
-import { SHIFT_INFO } from '../data/shifts';
+import { formatDateLabel } from '../utils/dates';
 
 /**
  * @param {{ reservation: object, onReset: () => void }} props
@@ -8,7 +8,7 @@ import { SHIFT_INFO } from '../data/shifts';
 export default function ReservationTicket({ reservation, onReset }) {
   const code = buildTicketCode(reservation);
   const dateLabel = formatDateLabel(reservation.date);
-  const turnInfo = SHIFT_INFO[reservation.turn];
+  const turnInfo = { label: reservation.shiftName, time: reservation.startTime };
   const guests = Number(reservation.guests);
 
   const handleDownload = () => {
@@ -31,12 +31,12 @@ export default function ReservationTicket({ reservation, onReset }) {
         </div>
         <div className="ticket-grid">
           <div><div className="k">Data</div><div className="v">{dateLabel}</div></div>
-          <div><div className="k">Ora</div><div className="v">{turnInfo?.time ?? reservation.turn}</div></div>
+          <div><div className="k">Ora</div><div className="v">{turnInfo.time}</div></div>
           <div><div className="k">Persone</div><div className="v">{guests}{guests === 1 ? ' persona' : ' persone'}</div></div>
           <div><div className="k">Nome</div><div className="v">{reservation.firstName} {reservation.lastName}</div></div>
         </div>
-        <div className="ticket-hint">Presentati al banco con questo codice, oppure il tuo nome. Riceverai conferma telefonica.</div>
-        <div className="stamp">in attesa<br />⚓</div>
+        <div className="ticket-hint">Presentati al banco con questo codice, oppure il tuo nome. Ti abbiamo inviato la conferma su WhatsApp.</div>
+        <div className="stamp">confermata<br />⚓</div>
       </div>
 
       <div className="ticket-actions no-print">
@@ -185,20 +185,13 @@ function buildTicketCode(reservation) {
   return `TR-${shortDate}-${reservation.id}`;
 }
 
-function formatDateLabel(dateStr) {
-  return new Date(dateStr).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
-}
-
-function buildReceiptText({ code, dateLabel, turnInfo, guests, firstName, lastName, phone, email, notes }) {
+function buildReceiptText({ code, dateLabel, turnInfo, guests, firstName, lastName }) {
   return `TAVERNA RAPHAEL — Ricevuta di prenotazione
 Codice: ${code}
 Data: ${dateLabel}
-Turno: ${turnInfo?.label ?? ''} (${turnInfo?.time ?? ''})
+Turno: ${turnInfo.label} (${turnInfo.time})
 Persone: ${guests}
 Nome: ${firstName} ${lastName}
-Telefono: ${phone}
-Email: ${email}
-${notes ? 'Note: ' + notes : ''}
 
 Presentati al banco con questo codice o con il tuo nome.
 Piazza Sodani 1, Sant'Anastasia (NA) — +39 366 357 5967`;

@@ -6,27 +6,27 @@ import useRevealOnScroll from '../../hooks/useRevealOnScroll';
 const AULIVELLA_SHOP_URL = '#';
 
 export default function AulivellaSection() {
-  const [refCard, cardVisible] = useRevealOnScroll();
-  const [refCta, ctaVisible] = useRevealOnScroll();
+  const [refBlock, isVisible] = useRevealOnScroll();
 
   return (
     <section id="aulivella" className="section aulivella-section">
-      <div className="container aulivella-grid">
-        <div ref={refCard} className={`aulivella-card reveal${cardVisible ? ' is-visible' : ''}`}>
-          <div className="aulivella-art">
-            <img src="/vetrina/aulivella.jpg" alt="Colomba artigianale Aulivella" loading="lazy" />
-          </div>
-          <span className="eyebrow">Chiedi al nostro staff</span>
-          <h3>Colomba &ldquo;Aulivella&rdquo;</h3>
-          <p>Aulivella &ndash; &apos;A Colomba ca Pellecchiella. Da Aulivella la tradizione incontra la Pasqua con un dolce che profuma di casa.</p>
-          <p>Nasce &ldquo;&apos;A Colomba ca Pellecchiella&rdquo;, la nostra colomba artigianale arricchita con la dolcezza delle pellecchielle del Vesuvio, simbolo della nostra terra. Soffice, profumata e preparata con ingredienti selezionati.</p>
-          <span className="ask">Chiedi al nostro staff!</span>
-        </div>
+      <div ref={refBlock} className={`container aulivella-block reveal${isVisible ? ' is-visible' : ''}`}>
+        <figure className="aulivella-art">
+          <img src="/vetrina/aulivella.jpg" alt="Lo chef con la colomba artigianale Aulivella davanti all'insegna della Taverna Raphael" loading="lazy" />
+        </figure>
 
-        <div ref={refCta} className={`aulivella-cta reveal${ctaVisible ? ' is-visible' : ''}`}>
+        <div className="aulivella-content">
           <span className="eyebrow">Il nostro e-commerce</span>
           <h2>Aulivella, anche a casa tua.</h2>
-          <p>Scopri la colomba artigianale e le altre specialità Aulivella: ordina online e ricevile comodamente a casa.</p>
+          <p className="lead">Scopri la colomba artigianale e le altre specialità Aulivella: ordina online e ricevile comodamente a casa.</p>
+
+          <div className="product">
+            <span className="eyebrow">Chiedi al nostro staff</span>
+            <h3>Colomba &ldquo;Aulivella&rdquo;</h3>
+            <p>Aulivella &ndash; &apos;A Colomba ca Pellecchiella. Da Aulivella la tradizione incontra la Pasqua con un dolce che profuma di casa.</p>
+            <p>Nasce &ldquo;&apos;A Colomba ca Pellecchiella&rdquo;, la nostra colomba artigianale arricchita con la dolcezza delle pellecchielle del Vesuvio, simbolo della nostra terra. Soffice, profumata e preparata con ingredienti selezionati.</p>
+          </div>
+
           <a href={AULIVELLA_SHOP_URL} target="_blank" rel="noopener noreferrer" className="btn btn-shop">
             Visita il nostro e-commerce
           </a>
@@ -38,23 +38,24 @@ export default function AulivellaSection() {
           background: var(--color-ink-light);
         }
 
-        .aulivella-grid {
+        .aulivella-block {
           display: grid;
-          grid-template-columns: 0.85fr 1fr;
+          grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
           gap: var(--s-16);
-          align-items: center;
+          align-items: stretch;
         }
 
         .aulivella-art {
+          margin: 0;
           background: var(--color-ink);
           border: 1px solid var(--color-line);
-          border-radius: var(--r-sm);
+          border-radius: var(--r-md);
           overflow: hidden;
-          aspect-ratio: 3 / 4;
-          margin-bottom: var(--s-4);
+          min-height: 420px;
         }
 
         .aulivella-art img {
+          display: block;
           width: 100%;
           height: 100%;
           object-fit: cover;
@@ -62,57 +63,83 @@ export default function AulivellaSection() {
           filter: saturate(0.94);
         }
 
-        .aulivella-card h3 {
-          font-size: 1.3rem;
-          margin-bottom: var(--s-3);
+        .aulivella-content {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: center;
+          gap: var(--s-4);
         }
 
-        .aulivella-card p {
+        .aulivella-content h2 {
+          font-size: clamp(1.9rem, 3.2vw, 2.8rem);
+          line-height: 1.1;
+          margin: 0;
+        }
+
+        .lead {
           color: var(--color-text-soft);
-          font-size: 0.9rem;
-          line-height: 1.5;
-          margin-bottom: var(--s-3);
+          font-size: var(--fs-body);
+          line-height: 1.6;
+          max-width: 46ch;
+          margin: 0;
         }
 
-        .ask {
-          font-family: var(--font-mono);
-          font-size: 0.72rem;
-          letter-spacing: 0.06em;
-          color: var(--color-brass-bright);
-          text-transform: uppercase;
-        }
-
-        .aulivella-cta {
-          text-align: center;
-          padding: var(--s-16) var(--s-8);
+        .product {
+          width: 100%;
+          margin: var(--s-4) 0;
+          padding: var(--s-6);
           background: var(--color-ink);
-          border: 1px solid var(--color-line-strong);
+          border: 1px solid var(--color-line);
+          border-left: 2px solid var(--color-brass);
           border-radius: var(--r-md);
         }
 
-        .aulivella-cta h2 {
-          font-size: clamp(1.8rem, 3vw, 2.4rem);
-          margin-bottom: var(--s-4);
+        .product h3 {
+          font-size: 1.3rem;
+          margin: var(--s-2) 0 var(--s-3);
         }
 
-        .aulivella-cta p {
+        .product p {
           color: var(--color-text-soft);
-          max-width: 380px;
-          margin: 0 auto var(--s-8);
+          font-size: 0.9375rem;
+          line-height: 1.6;
+          max-width: 60ch;
+          margin: 0 0 var(--s-3);
+        }
+
+        .product p:last-child {
+          margin-bottom: 0;
         }
 
         .btn-shop {
+          min-height: 48px;
+          padding: 0 var(--s-8);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
           font-size: 1rem;
-          padding: 1.1rem 2.5rem;
         }
 
         @media (max-width: 860px) {
-          .aulivella-grid {
+          .aulivella-block {
             grid-template-columns: 1fr;
+            gap: var(--s-8);
           }
 
-          .aulivella-cta {
-            padding: var(--s-12) var(--s-6);
+          .aulivella-art {
+            min-height: 0;
+            aspect-ratio: 4 / 3;
+          }
+
+          .btn-shop {
+            width: 100%;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .product {
+            padding: var(--s-4);
           }
         }
       `}</style>
