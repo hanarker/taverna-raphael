@@ -29,6 +29,7 @@ export default function SettingsManager() {
       setForm({
         cutoffMinutes: s.cutoffMinutes, insufficientSeatsMessage: s.insufficientSeatsMessage,
         cancellationContactText: s.cancellationContactText, ownerWhatsapp: s.ownerWhatsapp,
+        restaurantPhone: s.restaurantPhone, incomingReplyText: s.incomingReplyText,
       });
       setTemplates(Object.fromEntries(TEMPLATE_EVENTS.map(({ key }) => [key, {
         contentSid: s.whatsappTemplates?.[key]?.contentSid ?? '',
@@ -66,13 +67,23 @@ export default function SettingsManager() {
 
         <h2>Messaggi WhatsApp</h2>
         <div className="field">
+          <label htmlFor="s-phone">Telefono del ristorante</label>
+          <input id="s-phone" type="tel" value={form.restaurantPhone} onChange={(e) => setField({ restaurantPhone: e.target.value })} placeholder="+39 366 357 5967" />
+          <span className="hint">Compare nella ricevuta scaricabile dal cliente.</span>
+        </div>
+        <div className="field">
           <label htmlFor="s-contact">Indicazioni per la disdetta (nei reminder, variabile «contact»)</label>
           <textarea id="s-contact" rows="2" value={form.cancellationContactText} onChange={(e) => setField({ cancellationContactText: e.target.value })}
-            placeholder="Per disdire chiama il 366 357 5967" />
+            placeholder={`Per disdire chiama il ${form.restaurantPhone}`} />
         </div>
         <div className="field">
           <label htmlFor="s-owner">WhatsApp del titolare (con prefisso)</label>
           <input id="s-owner" type="tel" value={form.ownerWhatsapp} onChange={(e) => setField({ ownerWhatsapp: e.target.value })} placeholder="+39 366 357 5967" />
+        </div>
+        <div className="field">
+          <label htmlFor="s-reply">Risposta automatica a chi scrive su WhatsApp</label>
+          <textarea id="s-reply" rows="2" value={form.incomingReplyText} onChange={(e) => setField({ incomingReplyText: e.target.value })} />
+          <span className="hint">Ricevuta da chiunque risponda ai messaggi del ristorante. Non può essere vuota.</span>
         </div>
         <p className="hint">I testi dei template si approvano su Meta/Twilio. Qui si collega ogni evento al Content SID approvato e si indica l&apos;ordine delle variabili ({VARIABLES_HELP}). Senza SID l&apos;evento non invia nulla.</p>
         {TEMPLATE_EVENTS.map(({ key, label }) => (

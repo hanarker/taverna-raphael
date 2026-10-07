@@ -363,7 +363,7 @@ export default function Navbar() {
           flex-direction: column;
           align-items: center;
           text-align: center;
-          margin-bottom: var(--s-10);
+          margin-bottom: var(--s-8);
           width: 100%;
         }
 
@@ -455,7 +455,7 @@ export default function Navbar() {
           font-weight: 700;
           letter-spacing: 0.08em;
           text-transform: uppercase;
-          padding: var(--s-4) var(--s-10);
+          padding: var(--s-4) var(--s-8);
           background: var(--color-brass);
           color: var(--color-ink);
           border: 1px solid var(--color-brass);

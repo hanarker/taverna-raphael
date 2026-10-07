@@ -95,7 +95,7 @@ export default function ReservationForm() {
     if (status === 'success' && confirmedReservation) {
         return (
             <div className="form-container">
-                <ReservationTicket reservation={confirmedReservation} onReset={resetForm} />
+                <ReservationTicket reservation={confirmedReservation} restaurantPhone={availability?.restaurantPhone} onReset={resetForm} />
                 <style jsx>{`
                     .form-container { background: var(--color-ink); border: 1px solid var(--color-line-strong); border-radius: var(--r-md); padding: var(--s-8); }
                     @media (max-width: 600px) { .form-container { padding: var(--s-6); } }

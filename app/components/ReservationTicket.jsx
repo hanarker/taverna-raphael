@@ -2,17 +2,20 @@
 
 import { formatDateLabel } from '../utils/dates';
 
+// Usato solo se le impostazioni non sono ancora state caricate.
+const DEFAULT_RESTAURANT_PHONE = '+39 366 357 5967';
+
 /**
- * @param {{ reservation: object, onReset: () => void }} props
+ * @param {{ reservation: object, restaurantPhone?: string, onReset: () => void }} props
  */
-export default function ReservationTicket({ reservation, onReset }) {
+export default function ReservationTicket({ reservation, restaurantPhone = DEFAULT_RESTAURANT_PHONE, onReset }) {
   const code = buildTicketCode(reservation);
   const dateLabel = formatDateLabel(reservation.date);
   const turnInfo = { label: reservation.shiftName, time: reservation.startTime };
   const guests = Number(reservation.guests);
 
   const handleDownload = () => {
-    const testo = buildReceiptText({ ...reservation, code, dateLabel, turnInfo, guests });
+    const testo = buildReceiptText({ ...reservation, code, dateLabel, turnInfo, guests, restaurantPhone });
     const blob = new Blob([testo], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -59,7 +62,7 @@ export default function ReservationTicket({ reservation, onReset }) {
           position: relative;
           background: var(--color-paper);
           color: var(--color-ink);
-          padding: var(--s-10) var(--s-10) var(--s-16);
+          padding: var(--s-8) var(--s-8) var(--s-24);
           border-radius: var(--r-sm);
           clip-path: polygon(0 0, 100% 0, 100% 92%, 97% 100%, 93% 92%, 89% 100%, 85% 92%, 81% 100%, 77% 92%, 73% 100%, 69% 92%, 65% 100%, 61% 92%, 57% 100%, 53% 92%, 49% 100%, 45% 92%, 41% 100%, 37% 92%, 33% 100%, 29% 92%, 25% 100%, 21% 92%, 17% 100%, 13% 92%, 9% 100%, 5% 92%, 1% 100%, 0 92%);
         }
@@ -67,10 +70,11 @@ export default function ReservationTicket({ reservation, onReset }) {
         .ticket-head {
           display: flex;
           justify-content: space-between;
-          align-items: flex-start;
+          align-items: baseline;
+          gap: var(--s-4);
           border-bottom: 1px dashed var(--color-ink);
           padding-bottom: var(--s-4);
-          margin-bottom: var(--s-4);
+          margin-bottom: var(--s-6);
         }
 
         .tt {
@@ -89,9 +93,9 @@ export default function ReservationTicket({ reservation, onReset }) {
 
         .ticket-grid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: var(--s-4);
-          margin-bottom: var(--s-6);
+          grid-template-columns: 1.5fr 0.8fr 1fr 1.5fr;
+          gap: var(--s-6) var(--s-4);
+          margin-bottom: var(--s-8);
         }
 
         .k {
@@ -111,13 +115,15 @@ export default function ReservationTicket({ reservation, onReset }) {
         .ticket-hint {
           font-family: var(--font-mono);
           font-size: 0.8rem;
+          line-height: 1.6;
           color: #6b6250;
+          max-width: calc(100% - 128px);
         }
 
         .stamp {
           position: absolute;
           right: var(--s-8);
-          bottom: var(--s-10);
+          bottom: var(--s-12);
           width: 96px;
           height: 96px;
           border: 3px solid var(--color-rust);
@@ -169,7 +175,10 @@ export default function ReservationTicket({ reservation, onReset }) {
         }
 
         @media (max-width: 640px) {
+          .ticket { padding: var(--s-6) var(--s-6) 9rem; }
           .ticket-grid { grid-template-columns: repeat(2, 1fr); }
+          .ticket-hint { max-width: none; }
+          .stamp { right: var(--s-6); bottom: var(--s-8); width: 80px; height: 80px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -185,7 +194,7 @@ function buildTicketCode(reservation) {
   return `TR-${shortDate}-${reservation.id}`;
 }
 
-function buildReceiptText({ code, dateLabel, turnInfo, guests, firstName, lastName }) {
+function buildReceiptText({ code, dateLabel, turnInfo, guests, firstName, lastName, restaurantPhone }) {
   return `TAVERNA RAPHAEL — Ricevuta di prenotazione
 Codice: ${code}
 Data: ${dateLabel}
@@ -194,5 +203,5 @@ Persone: ${guests}
 Nome: ${firstName} ${lastName}
 
 Presentati al banco con questo codice o con il tuo nome.
-Piazza Sodani 1, Sant'Anastasia (NA) — +39 366 357 5967`;
+Piazza Sodani 1, Sant'Anastasia (NA) — ${restaurantPhone}`;
 }

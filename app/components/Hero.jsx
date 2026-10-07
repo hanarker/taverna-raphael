@@ -84,7 +84,7 @@ export default function Hero() {
 
         .scroll-cue {
           position: absolute;
-          bottom: var(--s-10);
+          bottom: var(--s-8);
           left: 6vw;
           font-family: var(--font-mono);
           font-size: 0.7rem;
