@@ -1,0 +1,50 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      NODE_ENV: production
+      DB_DIALECT: sqlite
+      SQLITE_PATH: /data/dev.db
+      JWT_SECRET: ${JWT_SECRET}
+      TZ: Europe/Rome
+      PHONE_HASH_SECRET: ${PHONE_HASH_SECRET}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_WHATSAPP_FROM: ${TWILIO_WHATSAPP_FROM:-}
+      PUBLIC_BASE_URL: https://${NGROK_DOMAIN}
+      FRONTEND_URL: https://${NGROK_DOMAIN}
+      PORT: 3001
+    volumes:
+      - sqlite_data:/data
+      - ./backend/uploads:/app/uploads
+    expose:
+      - "3001"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ""
+        BACKEND_INTERNAL_URL: "http://backend:3001"
+    environment:
+      BACKEND_INTERNAL_URL: http://backend:3001
+    depends_on:
+      - backend
+    expose:
+      - "3000"
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    command: http --domain=${NGROK_DOMAIN} frontend:3000
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    ports:
+      - "4040:4040"
+    depends_on:
+      - frontend
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
